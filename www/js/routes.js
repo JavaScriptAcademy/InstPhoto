@@ -7,10 +7,10 @@ angular.module('app.routes', [])
   // Set up the various states which the app can be in.
   // Each state's controller can be found in controllers.js
   $stateProvider
-    
-  
 
-      .state('tabsController.home', {
+
+
+  .state('tabsController.home', {
     url: '/page2',
     views: {
       'tab1': {
@@ -40,6 +40,12 @@ angular.module('app.routes', [])
     }
   })
 
+  .state('setting', {
+    url: '/setting',
+    templateUrl: 'templates/accountSetting.html',
+    controller: 'accountSettingCtrl'
+  })
+
   .state('tabsController', {
     url: '/page1',
     templateUrl: 'templates/tabsController.html',
@@ -47,25 +53,25 @@ angular.module('app.routes', [])
   })
 
   .state('signup', {
-    url: '/page5',
+    url: '/signup',
     templateUrl: 'templates/signup.html',
     controller: 'signupCtrl'
   })
 
   .state('login', {
-    url: '/page6',
+    url: '/login',
     templateUrl: 'templates/login.html',
     controller: 'loginCtrl'
   })
 
   .state('editPost', {
-    url: '/page7',
+    url: '/editPost',
     templateUrl: 'templates/editPost.html',
     controller: 'editPostCtrl'
   })
 
 $urlRouterProvider.otherwise('/page1/page2')
 
-  
+
 
 });
