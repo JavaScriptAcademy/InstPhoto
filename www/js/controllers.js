@@ -14,11 +14,9 @@ angular.module('app.controllers', [])
   }
 })
 
-.controller('signupCtrl', function($scope) {
+.controller('signupCtrl', function($scope, $state) {
   $scope.signupForm = {};
   $scope.submit = function() {
-    console.log($scope.signupForm.email);
-    console.log($scope.signupForm.password);
     var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
     ref.createUser({
       email    : $scope.signupForm.email,
@@ -28,6 +26,15 @@ angular.module('app.controllers', [])
         console.log("Error creating user:", error);
       } else {
         console.log("Successfully created user account with uid:", userData.uid);
+        var usersRef = ref.child("users");
+        var username = $scope.signupForm.username;
+        var email = $scope.signupForm.email;
+        usersRef.child(userData.uid).set({
+          username: username,
+          posts: [],
+          email: email
+        });
+        $state.go('login');
       }
     });
   }
@@ -61,6 +68,22 @@ angular.module('app.controllers', [])
 
 })
 
-.controller('accountSettingCtrl', function($scope) {
+.controller('accountSettingCtrl', function($scope, $state) {
+  var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+  $scope.edit = function() {
+    console.log('in edit');
+    ref.onAuth(function(authData) {
+      if (authData) {
+        console.log("Authenticated with uid:", authData.uid);
+      } else {
+        console.log("Client unauthenticated.")
+      }
+    });
 
+  }
+
+  $scope.logout = function() {
+    ref.unauth();
+    $state.go('login');
+  }
 })
