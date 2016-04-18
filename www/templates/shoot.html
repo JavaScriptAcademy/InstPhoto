@@ -1,11 +1,8 @@
 <ion-view title="Shoot" id="page3" style="background-color:#F8CB6C;">
-    <ion-content padding="true" scroll="false" class="has-header">
-        <div>
-            <img src="http://placekitten.com/300/420">
-        </div>
-        <div class="button-bar">
-            <button id="shoot-button5" class="button button-calm  button-block">camera</button>
-            <button id="shoot-button6" class="button button-positive  button-block">gallary</button>
-        </div>
+    <ion-content ng-controller="cameraController" padding="true">
+        <button class="button button-full button-assertive" ng-click="takePhoto()">Take Photo</button>
+        <button class="button button-full button-assertive" ng-click="choosePhoto()">Choose Photo</button>
+        <img ng-show="imgURI !== undefined" ng-src="{{imgURI}}" style="text-align: center">
     </ion-content>
+
 </ion-view>
