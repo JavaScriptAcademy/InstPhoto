@@ -1,25 +1,29 @@
 <ion-view title="Home" id="page2" style="background-color:#F8CB6C;">
     <ion-content padding="true" scroll="true" class="has-header">
-
-        <form class="search" method="post" action="index.html" >
-            <input type="text" name="q" placeholder="Search..." class="ion-search"/>
-            <ul class="results" >
-                <li><a href="index.html">Search Result #1<br /><span>Description...</span></a></li>
-                <li><a href="index.html">Search Result #2<br /><span>Description...</span></a></li>
-                <li><a href="index.html">Search Result #3<br /><span>Description...</span></a></li>
-                <li><a href="index.html">Search Result #4</a></li>
-            </ul>
-        </form>
-        <div class="homePost">
+        <div class="searchWarpper">
+            <form class="search" method="post" action="" >
+                <input type="text" name="q" placeholder="Search..." class="ion-search"/>
+                <ul class="results" >
+                    <li><a href="index.html">Search Result #1<br /><span>Description...</span></a></li>
+                    <li><a href="index.html">Search Result #2<br /><span>Description...</span></a></li>
+                    <li><a href="index.html">Search Result #3<br /><span>Description...</span></a></li>
+                    <li><a href="index.html">Search Result #4</a></li>
+                </ul>
+            </form>
+        </div>
+        <div class="homePost" ng-repeat="post in posts">
             <div class="postHeader">
                 <div class="item-avatar headerImage">
                     <img src="http://placekitten.com/60/60" />
                 </div>
-                <div class="postName"><strong>User name</strong></div>
-                <div class="postTime">10mins</div>
+                <div class="postName"><strong>{{post.userId}}</strong></div>
+                <div class="postTime">{{post.createdAt}}</div>
+            </div>
+            <div class="postDesc">
+                <p>{{post.description}}</p>
             </div>
             <div class="postImage">
-                <img src="http://placekitten.com/350/350" />
+                <img src="{{post.imagePath}}" />
             </div>
             <div class="postComment">
                 <div class="likeAndComment">
