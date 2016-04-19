@@ -11,6 +11,10 @@ input {
     color: #555860;
 }
 
+.searchWarpper {
+    /*position: fixed;*/
+}
+
 .search {
     position: relative;
     margin: 0 auto;
@@ -168,6 +172,10 @@ input {
     margin-top: 10px;
     width: 100%;
     position: relative;
+}
+
+.postDesc p {
+    margin-left: 5px;
 }
 
 .headerImage {

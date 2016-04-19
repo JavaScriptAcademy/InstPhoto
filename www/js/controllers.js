@@ -5,6 +5,21 @@ angular.module('app.controllers', [])
 
 .controller('homeCtrl', function($scope) {
 
+  var postsRef = new Firebase("https://sweltering-heat-3844.firebaseio.com/posts");
+  // postsRef.push({
+  //   userId: 2,
+  //   description: "Hello world",
+  //   imagePath: "http://orig10.deviantart.net/49c3/f/2015/197/b/f/profile_picture_by_waht_da_fwack-d91lsh2.png",
+  //   createdAt: new Date().getTime(),
+  //   like: []
+  // });
+  postsRef.on("value", function(snapshot) {
+    $scope.posts = snapshot.val();
+    console.log("test: ",snapshot.val());
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
+
 })
 
 .controller('shootCtrl', function($scope) {
@@ -27,6 +42,7 @@ angular.module('app.controllers', [])
   // $scope.myData = {};
   // $scope.myData.posts = [ {text : "one"}, {text : "two"}, {text : "three"} ];
 })
+
 
 .controller('signupCtrl', function($scope, $state) {
   $scope.signupForm = {};
@@ -52,15 +68,10 @@ angular.module('app.controllers', [])
       }
     });
   }
+
 })
 
 .controller('loginCtrl', function($scope, $state) {
-  $scope.signinForm = {};
-  $scope.submit = function() {
-    console.log($scope.signinForm.email);
-    console.log($scope.signinForm.password);
-
-    //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
     ref.authWithPassword({
       email    : $scope.signinForm.email,
       password : $scope.signinForm.password
