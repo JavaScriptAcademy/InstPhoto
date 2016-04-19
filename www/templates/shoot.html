@@ -1,8 +1,18 @@
 <ion-view title="Shoot" id="page3" style="background-color:#F8CB6C;">
-    <ion-content ng-controller="cameraController" padding="true">
-        <button class="button button-full button-assertive" ng-click="takePhoto()">Take Photo</button>
-        <button class="button button-full button-assertive" ng-click="choosePhoto()">Choose Photo</button>
-        <img ng-show="imgURI !== undefined" ng-src="{{imgURI}}" style="text-align: center">
+    <ion-content scroll="false" ng-controller="cameraController" padding="true">
+      <div class="button-bar">
+        <button class="button button-block" ng-click="takePhoto()">Take Photo</button>
+        <button class="button button-block" ng-click="choosePhoto()">Choose Photo</button>
+      </div>
+      <div ng-show="imgURI !== undefined" class="list list-inset">
+        <img ng-src="{{imgURI}}" style="text-align: center">
+        <label  class="item item-input">
+            <input type="text" placeholder="Comment">
+        </label>
+      <div class="button-bar">
+        <button class="button button-block" >Submit</button>
+        <button class="button button-block" >Cancel</button>
+      </div>
+      </div>
     </ion-content>
-
 </ion-view>
