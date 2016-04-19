@@ -1,3 +1,6 @@
+
+var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+
 angular.module('app.controllers', [])
 
 .controller('homeCtrl', function($scope) {
@@ -9,15 +12,26 @@ angular.module('app.controllers', [])
 })
 
 .controller('currentlyUserCtrl', function($scope, $state) {
+  var postsRef = ref.child("posts");
   $scope.goSetting = function() {
     $state.go('setting');
-  }
+  };
+  postsRef.on("value", function(snapshot) {
+    console.log(snapshot.val());
+    $scope.myData = {};
+    $scope.myData.posts = snapshot.val();
+
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
+  // $scope.myData = {};
+  // $scope.myData.posts = [ {text : "one"}, {text : "two"}, {text : "three"} ];
 })
 
 .controller('signupCtrl', function($scope, $state) {
   $scope.signupForm = {};
   $scope.submit = function() {
-    var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+    //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
     ref.createUser({
       email    : $scope.signupForm.email,
       password : $scope.signupForm.password
@@ -46,7 +60,7 @@ angular.module('app.controllers', [])
     console.log($scope.signinForm.email);
     console.log($scope.signinForm.password);
 
-    var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+    //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
     ref.authWithPassword({
       email    : $scope.signinForm.email,
       password : $scope.signinForm.password
@@ -69,7 +83,7 @@ angular.module('app.controllers', [])
 })
 
 .controller('accountSettingCtrl', function($scope, $state) {
-  var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+  //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
   $scope.edit = function() {
     console.log('in edit');
     ref.onAuth(function(authData) {
@@ -79,11 +93,24 @@ angular.module('app.controllers', [])
         console.log("Client unauthenticated.")
       }
     });
+    var date = new Date();
+    console.log(date);
 
   }
 
   $scope.logout = function() {
     ref.unauth();
     $state.go('login');
+  };
+
+  $scope.changePassword = function() {
+    var postsRef = ref.child("posts");
+    postsRef.child('postID1').set({
+      userid: 'userid1',
+      imagePath: 'http://edge.alluremedia.com.au/m/k/2014/07/warcraft.jpg',
+      createdAt: 'date1',
+      context: 'context1',
+      like: ['userid1', 'userid2']
+    });
   }
 })
