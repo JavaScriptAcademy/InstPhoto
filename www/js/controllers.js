@@ -1,3 +1,4 @@
+var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
 angular.module('app.controllers', ['ionic','ngCordova'])
 
 
@@ -28,20 +29,33 @@ angular.module('app.controllers', ['ionic','ngCordova'])
 
 
 .controller('currentlyUserCtrl', function($scope, $state) {
+  var postsRef = ref.child("posts");
   $scope.goSetting = function() {
     $state.go('setting');
-  }
+  };
+  postsRef.on("value", function(snapshot) {
+    console.log(snapshot.val());
+    $scope.myData = {};
+    $scope.myData.posts = snapshot.val();
+
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
+  // $scope.myData = {};
+  // $scope.myData.posts = [ {text : "one"}, {text : "two"}, {text : "three"} ];
 })
 
+<<<<<<< HEAD
 
 
 
 .controller('signupCtrl', function($scope) {
+=======
+.controller('signupCtrl', function($scope, $state) {
+>>>>>>> 790917a729f2d43fb4660dca20dde74fdad6e389
   $scope.signupForm = {};
   $scope.submit = function() {
-    console.log($scope.signupForm.email);
-    console.log($scope.signupForm.password);
-    var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+    //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
     ref.createUser({
       email    : $scope.signupForm.email,
       password : $scope.signupForm.password
@@ -50,6 +64,15 @@ angular.module('app.controllers', ['ionic','ngCordova'])
         console.log("Error creating user:", error);
       } else {
         console.log("Successfully created user account with uid:", userData.uid);
+        var usersRef = ref.child("users");
+        var username = $scope.signupForm.username;
+        var email = $scope.signupForm.email;
+        usersRef.child(userData.uid).set({
+          username: username,
+          posts: [],
+          email: email
+        });
+        $state.go('login');
       }
     });
   }
@@ -62,7 +85,7 @@ angular.module('app.controllers', ['ionic','ngCordova'])
     console.log($scope.signinForm.email);
     console.log($scope.signinForm.password);
 
-    var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+    //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
     ref.authWithPassword({
       email    : $scope.signinForm.email,
       password : $scope.signinForm.password
@@ -84,6 +107,7 @@ angular.module('app.controllers', ['ionic','ngCordova'])
 
 })
 
+<<<<<<< HEAD
 .controller("cameraController", function ($scope, $cordovaCamera) {
 
                 $scope.takePhoto = function () {
@@ -128,5 +152,37 @@ angular.module('app.controllers', ['ionic','ngCordova'])
             })
 
 .controller('accountSettingCtrl', function($scope) {
+=======
+.controller('accountSettingCtrl', function($scope, $state) {
+  //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+  $scope.edit = function() {
+    console.log('in edit');
+    ref.onAuth(function(authData) {
+      if (authData) {
+        console.log("Authenticated with uid:", authData.uid);
+      } else {
+        console.log("Client unauthenticated.")
+      }
+    });
+    var date = new Date();
+    console.log(date);
 
+  }
+
+  $scope.logout = function() {
+    ref.unauth();
+    $state.go('login');
+  };
+>>>>>>> 790917a729f2d43fb4660dca20dde74fdad6e389
+
+  $scope.changePassword = function() {
+    var postsRef = ref.child("posts");
+    postsRef.child('postID1').set({
+      userid: 'userid1',
+      imagePath: 'http://edge.alluremedia.com.au/m/k/2014/07/warcraft.jpg',
+      createdAt: 'date1',
+      context: 'context1',
+      like: ['userid1', 'userid2']
+    });
+  }
 })

@@ -1,10 +1,17 @@
 <ion-view title="Currently User" id="page4">
-    <ion-content padding="true" scroll="false" class="has-header">
+    <ion-content  scroll="false" class="has-header">
         <ion-header-bar class="top" style="background-color:#F8CB6C;">
           <h1 class="title">Items</h1>
           <button class="button button-icon ion-gear-b" ng-click="goSetting()">
           </button>
         </ion-header-bar>
+
+        <div style="margin-top: 44px;border: 1px solid black;" ng-repeat="post in myData.posts">
+            {{post.imagePath}}
+            <img src="http://placekitten.com/60/60">
+        </div>
+
+
 <!--         <div>
             <img src="" <="" div="">
         </div>
