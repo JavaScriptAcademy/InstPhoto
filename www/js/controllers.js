@@ -1,53 +1,86 @@
 
 var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+var postsRef = ref.child("posts");
+var usersRef = ref.child("users");
 
 angular.module('app.controllers', [])
 
-.controller('homeCtrl', function($scope) {
-
-  var postsRef = new Firebase("https://sweltering-heat-3844.firebaseio.com/posts");
-  // postsRef.push({
-  //   userId: 2,
-  //   description: "Hello world",
-  //   imagePath: "http://orig10.deviantart.net/49c3/f/2015/197/b/f/profile_picture_by_waht_da_fwack-d91lsh2.png",
-  //   createdAt: new Date().getTime(),
-  //   like: []
-  // });
+.controller('homeCtrl', function($scope, $state) {
   postsRef.on("value", function(snapshot) {
     $scope.posts = snapshot.val();
-    console.log("test: ",snapshot.val());
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
 
+  $scope.detail = function(userid) {
+    $state.go('user', {
+      userid: userid
+    });
+  }
 })
-
 .controller('shootCtrl', function($scope) {
 
 })
 
-.controller('currentlyUserCtrl', function($scope, $state) {
-  var postsRef = ref.child("posts");
-  $scope.goSetting = function() {
-    $state.go('setting');
-  };
-  postsRef.on("value", function(snapshot) {
-    console.log(snapshot.val());
-    $scope.myData = {};
-    $scope.myData.posts = snapshot.val();
+.controller('userCtrl', function($scope, $stateParams) {
+  console.log($stateParams.userid);
+  $scope.userdata = {};
+  $scope.userdata.posts = [];
 
+  postsRef.on("value", function(snapshot) {
+    snapshot.forEach(function(childSnapshot) {
+      if(childSnapshot.val().userid === $stateParams.userid){
+        $scope.userdata.posts.push(childSnapshot.val());
+      }
+    });
+    $scope.userdata.postsNum = $scope.userdata.posts.length;
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
-  // $scope.myData = {};
-  // $scope.myData.posts = [ {text : "one"}, {text : "two"}, {text : "three"} ];
+
+  var userRef = ref.child("users/" + $stateParams.userid);
+  userRef.on("value", function(snapshot) {
+    $scope.userdata.username = snapshot.val().username;
+    console.log('name: ' + $scope.userdata.username);
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
+})
+
+.controller('currentlyUserCtrl', function($scope, $state) {
+  $scope.myData = {};
+  $scope.myData.posts = [];
+
+  $scope.goSetting = function() {
+    $state.go('setting');
+  };
+
+  ref.onAuth(function(authData) {
+    var usersRef = ref.child("users/" + authData.uid);
+    usersRef.on("value", function(snapshot) {
+      $scope.myData.username = snapshot.val().username;
+      console.log(snapshot.val().username);
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+    });
+
+    postsRef.on("value", function(snapshot) {
+      snapshot.forEach(function(childSnapshot) {
+        if(childSnapshot.val().userid === authData.uid){
+          $scope.myData.posts.push(childSnapshot.val());
+        }
+      });
+      $scope.myData.postsNum = $scope.myData.posts.length;
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+    });
+  });
 })
 
 
 .controller('signupCtrl', function($scope, $state) {
   $scope.signupForm = {};
   $scope.submit = function() {
-    //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
     ref.createUser({
       email    : $scope.signupForm.email,
       password : $scope.signupForm.password
@@ -56,7 +89,7 @@ angular.module('app.controllers', [])
         console.log("Error creating user:", error);
       } else {
         console.log("Successfully created user account with uid:", userData.uid);
-        var usersRef = ref.child("users");
+
         var username = $scope.signupForm.username;
         var email = $scope.signupForm.email;
         usersRef.child(userData.uid).set({
@@ -72,6 +105,10 @@ angular.module('app.controllers', [])
 })
 
 .controller('loginCtrl', function($scope, $state) {
+  $scope.signinForm = {};
+  $scope.submit = function() {
+    console.log($scope.signinForm.email);
+    console.log($scope.signinForm.password);
     ref.authWithPassword({
       email    : $scope.signinForm.email,
       password : $scope.signinForm.password
@@ -86,7 +123,6 @@ angular.module('app.controllers', [])
       remember: "sessionOnly"
     });
   }
-
 })
 
 .controller('editPostCtrl', function($scope) {
@@ -94,7 +130,7 @@ angular.module('app.controllers', [])
 })
 
 .controller('accountSettingCtrl', function($scope, $state) {
-  //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+
   $scope.edit = function() {
     console.log('in edit');
     ref.onAuth(function(authData) {
@@ -104,9 +140,6 @@ angular.module('app.controllers', [])
         console.log("Client unauthenticated.")
       }
     });
-    var date = new Date();
-    console.log(date);
-
   }
 
   $scope.logout = function() {
@@ -115,13 +148,8 @@ angular.module('app.controllers', [])
   };
 
   $scope.changePassword = function() {
-    var postsRef = ref.child("posts");
-    postsRef.child('postID1').set({
-      userid: 'userid1',
-      imagePath: 'http://edge.alluremedia.com.au/m/k/2014/07/warcraft.jpg',
-      createdAt: 'date1',
-      context: 'context1',
-      like: ['userid1', 'userid2']
-    });
   }
 })
+
+
+
