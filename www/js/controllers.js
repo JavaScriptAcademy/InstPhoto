@@ -1,5 +1,5 @@
 // var Firebase = require("firebase");
-var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+var ref = new Firebase("https://glaring-fire-2965.firebaseio.com");
 var postsRef = ref.child('posts');
 var usersRef = ref.child("users");
 
