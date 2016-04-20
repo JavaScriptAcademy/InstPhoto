@@ -24,21 +24,18 @@ angular.module('app.controllers', [])
 
 .controller('homeCtrl', function($scope) {
 
-  postsRef.push({
-    userId: 2,
-    description: "Hello world",
-    imagePath: "http://orig10.deviantart.net/49c3/f/2015/197/b/f/profile_picture_by_waht_da_fwack-d91lsh2.png",
-    createdAt: new Date().getTime(),
-    like: []
-  });
+    //  postsRef.orderByChild("*/userId").on("value", function(snapshot) {
+      postsRef.on("value", function(snapshot) {
 
-  postsRef.on("value", function(snapshot) {
-    $scope.posts = snapshot.val();
-    console.log("test: ",snapshot.val());
-  }, function (errorObject) {
-    console.log("The read failed: " + errorObject.code);
-  });
+       // $scope.$apply(function() {
 
+            $scope.posts = snapshot.val();
+            // console.log("test: ",snapshot.val());
+       // });
+      }, function (errorObject) {
+        console.log(err);
+        // console.log("The read failed: " + errorObject.code);
+      });
 })
 
 .controller('shootCtrl', function($scope) {
@@ -88,7 +85,7 @@ angular.module('app.controllers', [])
           posts: [],
           email: email
         });
-        $state.go('login');
+      //  $state.go('login');
       }
     });
   }
@@ -181,15 +178,20 @@ angular.module('app.controllers', [])
         postsRef.push().set({
           userid:authData.uid ,
           username: username,
-          imagePath: 'http://edge.alluremedia.com.au/m/k/2014/07/warcraft.jpg',
+          imagePath: imageURI,
           createdAt:getCurrentDate(),
           context: $scope.comment,
           like: ['userid1', 'userid2']
 
         });
+
+        console.log()
     }, function(err) {
         console.log(err);
     });
+
+ //     $state.go('login');
+
   }
 
 
