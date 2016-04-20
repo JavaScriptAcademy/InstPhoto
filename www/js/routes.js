@@ -8,8 +8,6 @@ angular.module('app.routes', [])
   // Each state's controller can be found in controllers.js
   $stateProvider
 
-
-
   .state('tabsController.home', {
     url: '/page2',
     views: {
@@ -25,7 +23,7 @@ angular.module('app.routes', [])
     views: {
       'tab2': {
         templateUrl: 'templates/shoot.html',
-        controller: 'shootCtrl'
+        controller: 'cameraController'
       }
     }
   })
@@ -69,6 +67,12 @@ angular.module('app.routes', [])
     templateUrl: 'templates/editPost.html',
     controller: 'editPostCtrl'
   })
+
+  // .state('editPost', {
+  //   url: '/page7',
+  //   templateUrl: 'templates/shoot.html',
+  //   controller: 'ImagePickerController'
+  // })
 
 $urlRouterProvider.otherwise('/page1/page2')
 
