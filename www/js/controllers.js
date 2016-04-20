@@ -1,5 +1,5 @@
 // var Firebase = require("firebase");
-var ref = new Firebase("https://glaring-fire-2965.firebaseio.com");
+var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
 var postsRef = ref.child('posts');
 var usersRef = ref.child("users");
 
@@ -38,7 +38,6 @@ angular.module('app.controllers', [])
 
 
 .controller('userCtrl', function($scope, $stateParams) {
-  console.log($stateParams.userid);
   $scope.userdata = {};
   $scope.userdata.posts = [];
 
@@ -81,12 +80,12 @@ angular.module('app.controllers', [])
       var usersRef = ref.child("users/" + authData.uid);
       usersRef.on("value", function(snapshot) {
         $scope.myData.username = snapshot.val().username;
-        console.log(snapshot.val().username);
       }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
       });
 
       postsRef.on("value", function(snapshot) {
+        $scope.myData.posts = [];
         snapshot.forEach(function(childSnapshot) {
           if(childSnapshot.val().userid === authData.uid){
             $scope.myData.posts.push(childSnapshot.val());
@@ -118,7 +117,7 @@ angular.module('app.controllers', [])
           posts: [],
           email: email
         });
-      //  $state.go('login');
+        $state.go('login');
       }
     });
   }
@@ -128,8 +127,6 @@ angular.module('app.controllers', [])
 .controller('loginCtrl', function($scope, $state) {
   $scope.signinForm = {};
   $scope.submit = function() {
-    console.log($scope.signinForm.email);
-    console.log($scope.signinForm.password);
     ref.authWithPassword({
       email    : $scope.signinForm.email,
       password : $scope.signinForm.password
