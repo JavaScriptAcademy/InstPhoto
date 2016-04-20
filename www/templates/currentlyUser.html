@@ -4,7 +4,7 @@
           <button class="button button-icon ion-gear-b" ng-click="goSetting()">
           </button>
         </ion-header-bar>
-    <ion-content  scroll="true" class="has-header">
+    <ion-content padding="true" scroll="true" class="has-header">
         <div class="postHeader">
             <div class="item-avatar headerImage">
                 <img src="http://placekitten.com/60/60" />
@@ -23,7 +23,7 @@
             </div>
         </div>
 
-        <div class="homePost" ng-repeat="post in myData.posts" >
+        <div class="homePost postHeader" ng-repeat="post in myData.posts" >
             <div class="postDesc">
                 <p>{{post.context}}</p>
             </div>

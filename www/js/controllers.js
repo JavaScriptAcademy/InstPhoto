@@ -1,25 +1,19 @@
 // var Firebase = require("firebase");
-var ref = new Firebase("https://glaring-fire-2965.firebaseio.com");
+var ref = new Firebase("https://sweltering-heat-3844.firebaseio.com");
 var postsRef = ref.child('posts');
 var usersRef = ref.child("users");
-
 function getCurrentDate() {
     var date  = new Date();
     var month = date.getUTCMonth() + 1; //months from 1-12
     var day = date.getUTCDate();
     var year = date.getUTCFullYear();
-
     var hour = date.getHours(); // => 9
     var minute = date.getMinutes(); // =>  30
-
     var newDate = year + "/" + month + "/" + day + "   ";
     var newTime = hour + ":" + minute ;
     return newDate + newTime;
-
   }
-
 angular.module('app.controllers', [])
-
 .controller('homeCtrl', function($scope, $state) {
   postsRef.on("value", function(snapshot) {
      // $scope.$apply(function() {
@@ -28,19 +22,15 @@ angular.module('app.controllers', [])
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
-
   $scope.detail = function(userid) {
     $state.go('user', {
       userid: userid
     });
   }
 })
-
-
 .controller('userCtrl', function($scope, $stateParams) {
   $scope.userdata = {};
   $scope.userdata.posts = [];
-
   postsRef.on("value", function(snapshot) {
     snapshot.forEach(function(childSnapshot) {
       if(childSnapshot.val().userid === $stateParams.userid){
@@ -51,7 +41,6 @@ angular.module('app.controllers', [])
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
-
   var userRef = ref.child("users/" + $stateParams.userid);
   userRef.on("value", function(snapshot) {
     $scope.userdata.username = snapshot.val().username;
@@ -60,19 +49,12 @@ angular.module('app.controllers', [])
     console.log("The read failed: " + errorObject.code);
   });
 })
-
-
-
-
 .controller('currentlyUserCtrl', function($scope, $state) {
-
   $scope.myData = {};
   $scope.myData.posts = [];
-
   $scope.goSetting = function() {
     $state.go('setting');
   };
-
   ref.onAuth(function(authData) {
     if(authData === null) {
       $scope.myData.posts = [];
@@ -83,7 +65,6 @@ angular.module('app.controllers', [])
       }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
       });
-
       postsRef.on("value", function(snapshot) {
         $scope.myData.posts = [];
         snapshot.forEach(function(childSnapshot) {
@@ -98,7 +79,6 @@ angular.module('app.controllers', [])
     }
   });
 })
-
 .controller('signupCtrl', function($scope, $state) {
   $scope.signupForm = {};
   $scope.submit = function() {
@@ -118,12 +98,11 @@ angular.module('app.controllers', [])
           email: email
         });
         $state.go('login');
+
       }
     });
   }
 })
-
-
 .controller('loginCtrl', function($scope, $state) {
   $scope.signinForm = {};
   $scope.submit = function() {
@@ -142,13 +121,9 @@ angular.module('app.controllers', [])
     });
   }
 })
-
 .controller('editPostCtrl', function($scope) {
-
 })
-
 .controller("cameraController", function ($scope, $cordovaCamera, $state) {
-
     $scope.takePhoto = function () {
          $scope.imgURI = 'http://images.all-free-download.com/images/graphiclarge/daisy_pollen_flower_220533.jpg';
     //   var options = {
@@ -162,17 +137,14 @@ angular.module('app.controllers', [])
     //     popoverOptions: CameraPopoverOptions,
     //     saveToPhotoAlbum: false
     // };
-
     //     $cordovaCamera.getPicture(options).then(function (imageData) {
     //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
     //     }, function (err) {
     //         // An error occured. Show a message to the user
     //     });
     }
-
     $scope.choosePhoto = function () {
         $scope.imgURI = 'http://media02.hongkiat.com/ww-flower-wallpapers/roundflower.jpg';
-
     //   var options = {
     //     quality: 75,
     //     destinationType: Camera.DestinationType.DATA_URL,
@@ -184,17 +156,13 @@ angular.module('app.controllers', [])
     //     popoverOptions: CameraPopoverOptions,
     //     saveToPhotoAlbum: false
     // };
-
     //     $cordovaCamera.getPicture(options).then(function (imageData) {
     //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
     //     }, function (err) {
     //         // An error occured. Show a message to the user
     //     });
     }
-
-
     $scope.submit = function(imageURI) {
-
       ref.onAuth(function(authData) {
         var username;
         var userRef = usersRef.child(authData.uid);
@@ -209,18 +177,13 @@ angular.module('app.controllers', [])
           createdAt:getCurrentDate(),
           context: $scope.comment,
           like: ['userid1', 'userid2']
-
         });
-
         $state.go('tabsController.home');
     }, function(err) {
         console.log(err);
     });
 
   }
-
-
-
   $scope.cancle = function() {
     console.log("cancel");
   }
@@ -244,11 +207,8 @@ angular.module('app.controllers', [])
     //     $state.go('login');
     //   }
     // });
-
 })
-
 .controller('accountSettingCtrl', function($scope, $state) {
-
   $scope.edit = function() {
     console.log('in edit');
     ref.onAuth(function(authData) {
@@ -259,12 +219,8 @@ angular.module('app.controllers', [])
       }
     });
   }
-
   $scope.logout = function() {
     $state.go('login');
     ref.unauth();
-
   };
-
 })
-

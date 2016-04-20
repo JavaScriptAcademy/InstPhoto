@@ -3,6 +3,7 @@
       <div class="button-bar">
         <button class="button button-block" ng-click="takePhoto()">Take Photo</button>
         <button class="button button-block" ng-click="choosePhoto()">Choose Photo</button>
+
       </div>
       <form ng-show="imgURI !== undefined" class="list list-inset " ng-submit="submit(imgURI)">
         <img ng-src="{{imgURI}}" style="width:100%; height: auto;">
