@@ -2,7 +2,9 @@ angular.module('app.controllers', ['ionic','ngCordova'])
 
 .controller('homeCtrl', function($scope) {
 
-  var postsRef = new Firebase("https://sweltering-heat-3844.firebaseio.com/posts");
+  var ref = new Firebase("https://glaring-fire-2965.firebaseio.com");
+  var postsRef = ref.child('posts');
+  var usersRef = ref.child("users");
 
   postsRef.on("value", function(snapshot) {
     $scope.posts = snapshot.val();
@@ -17,16 +19,26 @@ angular.module('app.controllers', ['ionic','ngCordova'])
 })
 
 .controller('currentlyUserCtrl', function($scope, $state) {
+  // var postsRef = ref.child("posts");
   $scope.goSetting = function() {
     $state.go('setting');
-  }
+  };
+  postsRef.on("value", function(snapshot) {
+    console.log(snapshot.val());
+    $scope.myData = {};
+    $scope.myData.posts = snapshot.val();
+
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
+
+  $scope.myData = {};
+  $scope.myData.posts = [ {text : "one"}, {text : "two"}, {text : "three"} ];
 })
 
-.controller('signupCtrl', function($scope) {
+.controller('signupCtrl', function($scope, $state) {
   $scope.signupForm = {};
   $scope.submit = function() {
-    console.log($scope.signupForm.email);
-    console.log($scope.signupForm.password);
     var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
     ref.createUser({
       email    : $scope.signupForm.email,
@@ -36,6 +48,15 @@ angular.module('app.controllers', ['ionic','ngCordova'])
         console.log("Error creating user:", error);
       } else {
         console.log("Successfully created user account with uid:", userData.uid);
+        // var usersRef = ref.child("users");
+        var username = $scope.signupForm.username;
+        var email = $scope.signupForm.email;
+        usersRef.child(userData.uid).set({
+          username: username,
+          posts: [],
+          email: email
+        });
+        $state.go('login');
       }
     });
   }
@@ -69,104 +90,130 @@ angular.module('app.controllers', ['ionic','ngCordova'])
 
 })
 
-.controller('accountSettingCtrl', function($scope) {
+.controller("cameraController", function ($scope, $cordovaCamera) {
 
-})
+    $scope.takePhoto = function () {
+         $scope.imgURI = 'http://images.all-free-download.com/images/graphiclarge/daisy_pollen_flower_220533.jpg';
+    //   var options = {
+    //     quality: 75,
+    //     destinationType: Camera.DestinationType.DATA_URL,
+    //     sourceType: Camera.PictureSourceType.CAMERA,
+    //     allowEdit: true,
+    //     encodingType: Camera.EncodingType.JPEG,
+    //     targetWidth: 300,
+    //     targetHeight: 300,
+    //     popoverOptions: CameraPopoverOptions,
+    //     saveToPhotoAlbum: false
+    // };
 
-.controller("cameraController", function ($scope, $http, $cordovaCamera, $firebaseArray) {
-  var postsRef = new Firebase("https://sweltering-heat-3844.firebaseio.com/posts");
-  $scope.upload = function(imageData) {
-    var FR = new FileReader();
-    var syncArray = $firebaseArray(postsRef);
-    syncArray.$add({
-        imageString: imageData,
-    })
-    .then(function() {
-        console.log('Image has been uploaded');
+    //     $cordovaCamera.getPicture(options).then(function (imageData) {
+    //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
+    //     }, function (err) {
+    //         // An error occured. Show a message to the user
+    //     });
+    }
+
+    $scope.choosePhoto = function () {
+        $scope.imgURI = 'http://media02.hongkiat.com/ww-flower-wallpapers/roundflower.jpg';
+
+    //   var options = {
+    //     quality: 75,
+    //     destinationType: Camera.DestinationType.DATA_URL,
+    //     sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+    //     allowEdit: true,
+    //     encodingType: Camera.EncodingType.JPEG,
+    //     targetWidth: 300,
+    //     targetHeight: 300,
+    //     popoverOptions: CameraPopoverOptions,
+    //     saveToPhotoAlbum: false
+    // };
+
+    //     $cordovaCamera.getPicture(options).then(function (imageData) {
+    //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
+    //     }, function (err) {
+    //         // An error occured. Show a message to the user
+    //     });
+    }
+
+
+    $scope.submit = function(imageURI) {
+
+      function getCurrentDate() {
+        var date  = new Date();
+        var month = date.getUTCMonth() + 1; //months from 1-12
+        var day = date.getUTCDate();
+        var year = date.getUTCFullYear();
+
+        var hour = date.getHours(); // => 9
+        var minute = date.getMinutes(); // =>  30
+
+        var newDate = year + "/" + month + "/" + day + "   ";
+        var newTime = hour + ":" + minute ;
+        return newDate + newTime;
+      }
+
+      ref.onAuth(function(authData) {
+        var username;
+        var userRef = usersRef.child(authData.uid);
+        userRef.on('value', function(snapshot) {
+            username = snapshot.val().username;
+        });
+
+        postsRef.push().set({
+          userid:authData.uid ,
+          username: username,
+          imagePath: 'http://edge.alluremedia.com.au/m/k/2014/07/warcraft.jpg',
+          createdAt:getCurrentDate(),
+          context: $scope.comment,
+          like: ['userid1', 'userid2']
+
+        });
+    }, function(err) {
+        console.log(err);
     });
   }
 
-  // $cordovaFileTransfer
-  // $scope.upload = function(imagePath) {
-
-  //   var POLICY_JSON = { "expiration": "2016-05-30T12:00:00.000Z",
-  //                       "conditions": [
-  //                         {"bucket": "instphoto"},
-  //                         {"acl": "public-read"},
-  //                       ]
-  //                     };
-
-  //   var policyEncBase64 = btoa(JSON.stringify(POLICY_JSON));
-  //   var secret = "D/hlTPki0KtR1jetfAtZnGFZclbHO7OWcUfFfhXx";
-  //   var signature = btoa( Crypto.HMAC(Crypto.SHA1, policyEncBase64, secret, { asString: true }) )
-  //   // var encodedSignature = b64_hmac_sha1(secret, policyEncBase64);
-  //   var s3URI = encodeURI("https://instphoto.s3.amazonaws.com/"),
-  //       policyBase64 = policyEncBase64,
-  //       // signature = encodedSignature,
-  //       awsKey = 'AKIAII5PKO2YXV4IMO7A',
-  //       acl = "public-read";
-
-  //   var options = {};
-  //   options.fileKey = "file";
-  //   options.fileName = new Date().getTime() + ".jpg";
-  //   options.mimeType = "image/jpeg";
-  //   options.chunkedMode = false;
-  //   options.params = {
-  //                       "key": options.fileName,
-  //                       "AWSAccessKeyId": awsKey,
-  //                       "acl": acl,
-  //                       "policy": policyBase64,
-  //                       "signature": signature,
-  //                       "Content-Type": "image/jpeg"
-  //                   };
 
 
-  //   $cordovaFileTransfer.upload(s3URI, imagePath, options).then(function (result) {
-  //           console.log("SUCCESS: " + JSON.stringify(result.response));
-  //       }, function (err) {
-  //           console.log("ERROR: " + JSON.stringify(err));
-  //       }, function (progress) {
-  //           // PROGRESS HANDLING GOES HERE
+  $scope.cancle = function() {
+    console.log("cancel");
+  }
+
+})
+
+.controller('accountSettingCtrl', function($scope, $state) {
+  //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+  $scope.edit = function() {
+    console.log('in edit');
+    ref.onAuth(function(authData) {
+      if (authData) {
+        console.log("Authenticated with uid:", authData.uid);
+      } else {
+        console.log("Client unauthenticated.")
+      }
+    });
+    var date = new Date();
+    console.log(date);
+
+  }
+
+  $scope.logout = function() {
+    ref.unauth();
+    $state.go('login');
+  }
+
+  // $scope.changePassword = function() {
+  //   ref.onAuth(function(authoData) {
+  //       postsRef.set({
+  //         userid:authData.uid ,
+  //         imagePath: 'http://edge.alluremedia.com.au/m/k/2014/07/warcraft.jpg',
+  //         createdAt: 'date1',
+  //         context: 'context1',
+  //         like: ['userid1', 'userid2']
   //       });
-  // };
+  //   }, function(err) {
+  //       console.log(err);
+  //   });
+  // }
+})
 
-  $scope.takePhoto = function () {
-    var options = {
-      quality: 75,
-      destinationType: Camera.DestinationType.DATA_URL,
-      sourceType: Camera.PictureSourceType.CAMERA,
-      allowEdit: true,
-      encodingType: Camera.EncodingType.JPEG,
-      targetWidth: 300,
-      targetHeight: 300,
-      popoverOptions: CameraPopoverOptions,
-      saveToPhotoAlbum: false
-  };
-
-      $cordovaCamera.getPicture(options).then(function (imageData) {
-          $scope.imgURI = "data:image/jpeg;base64," + imageData;
-      }, function (err) {
-          // An error occured. Show a message to the user
-      });
-  }
-
-  $scope.choosePhoto = function () {
-    var options = {
-      quality: 75,
-      destinationType: Camera.DestinationType.DATA_URL,
-      sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
-      allowEdit: true,
-      encodingType: Camera.EncodingType.JPEG,
-      targetWidth: 300,
-      targetHeight: 300,
-      popoverOptions: CameraPopoverOptions,
-      saveToPhotoAlbum: false
-  };
-
-      $cordovaCamera.getPicture(options).then(function (imageData) {
-          $scope.imgURI = "data:image/jpeg;base64," + imageData;
-      }, function (err) {
-          // An error occured. Show a message to the user
-      });
-  }
-});
