@@ -118,7 +118,7 @@ angular.module('app.controllers', [])
           posts: [],
           email: email
         });
-      //  $state.go('login');
+        $state.go('login');
       }
     });
   }
@@ -205,8 +205,6 @@ angular.module('app.controllers', [])
             username = snapshot.val().username;
         });
 
-        console.log("dddddd"+authData.uid);
-        console.log("dddddd"+username)
         postsRef.push().set({
           userid:authData.uid ,
           username: username,
@@ -221,8 +219,6 @@ angular.module('app.controllers', [])
     }, function(err) {
         console.log(err);
     });
-
-
 
   }
 
