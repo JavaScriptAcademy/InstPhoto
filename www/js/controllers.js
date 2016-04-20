@@ -150,7 +150,7 @@ angular.module('app.controllers', [])
 
 })
 
-.controller("cameraController", function ($scope, $cordovaCamera) {
+.controller("cameraController", function ($scope, $cordovaCamera, $state) {
 
     $scope.takePhoto = function () {
          $scope.imgURI = 'http://images.all-free-download.com/images/graphiclarge/daisy_pollen_flower_220533.jpg';
@@ -205,6 +205,8 @@ angular.module('app.controllers', [])
             username = snapshot.val().username;
         });
 
+        console.log("dddddd"+authData.uid);
+        console.log("dddddd"+username)
         postsRef.push().set({
           userid:authData.uid ,
           username: username,
@@ -215,12 +217,12 @@ angular.module('app.controllers', [])
 
         });
 
-        console.log()
+        $state.go('tabsController.home');
     }, function(err) {
         console.log(err);
     });
 
- //     $state.go('login');
+
 
   }
 
