@@ -1,45 +1,88 @@
-angular.module('app.controllers', ['ionic','ngCordova'])
-
-.controller('homeCtrl', function($scope) {
-
-  var ref = new Firebase("https://glaring-fire-2965.firebaseio.com");
-  var postsRef = ref.child('posts');
-  var usersRef = ref.child("users");
-
+// var Firebase = require("firebase");
+var ref = new Firebase("https://sweltering-heat-3844.firebaseio.com");
+var postsRef = ref.child('posts');
+var usersRef = ref.child("users");
+function getCurrentDate() {
+    var date  = new Date();
+    var month = date.getUTCMonth() + 1; //months from 1-12
+    var day = date.getUTCDate();
+    var year = date.getUTCFullYear();
+    var hour = date.getHours(); // => 9
+    var minute = date.getMinutes(); // =>  30
+    var newDate = year + "/" + month + "/" + day + "   ";
+    var newTime = hour + ":" + minute ;
+    return newDate + newTime;
+  }
+angular.module('app.controllers', [])
+.controller('homeCtrl', function($scope, $state) {
   postsRef.on("value", function(snapshot) {
+     // $scope.$apply(function() {
     $scope.posts = snapshot.val();
+    //});
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
-
+  $scope.detail = function(userid) {
+    $state.go('user', {
+      userid: userid
+    });
+  }
 })
-
-.controller('shootCtrl', function($scope) {
-
+.controller('userCtrl', function($scope, $stateParams) {
+  console.log($stateParams.userid);
+  $scope.userdata = {};
+  $scope.userdata.posts = [];
+  postsRef.on("value", function(snapshot) {
+    snapshot.forEach(function(childSnapshot) {
+      if(childSnapshot.val().userid === $stateParams.userid){
+        $scope.userdata.posts.push(childSnapshot.val());
+      }
+    });
+    $scope.userdata.postsNum = $scope.userdata.posts.length;
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
+  var userRef = ref.child("users/" + $stateParams.userid);
+  userRef.on("value", function(snapshot) {
+    $scope.userdata.username = snapshot.val().username;
+    console.log('name: ' + $scope.userdata.username);
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
 })
-
 .controller('currentlyUserCtrl', function($scope, $state) {
-  // var postsRef = ref.child("posts");
+  $scope.myData = {};
+  $scope.myData.posts = [];
   $scope.goSetting = function() {
     $state.go('setting');
   };
-  postsRef.on("value", function(snapshot) {
-    console.log(snapshot.val());
-    $scope.myData = {};
-    $scope.myData.posts = snapshot.val();
-
-  }, function (errorObject) {
-    console.log("The read failed: " + errorObject.code);
+  ref.onAuth(function(authData) {
+    if(authData === null) {
+      $scope.myData.posts = [];
+    } else {
+      var usersRef = ref.child("users/" + authData.uid);
+      usersRef.on("value", function(snapshot) {
+        $scope.myData.username = snapshot.val().username;
+        console.log(snapshot.val().username);
+      }, function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+      });
+      postsRef.on("value", function(snapshot) {
+        snapshot.forEach(function(childSnapshot) {
+          if(childSnapshot.val().userid === authData.uid){
+            $scope.myData.posts.push(childSnapshot.val());
+          }
+        });
+        $scope.myData.postsNum = $scope.myData.posts.length;
+      }, function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+      });
+    }
   });
-
-  $scope.myData = {};
-  $scope.myData.posts = [ {text : "one"}, {text : "two"}, {text : "three"} ];
 })
-
 .controller('signupCtrl', function($scope, $state) {
   $scope.signupForm = {};
   $scope.submit = function() {
-    var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
     ref.createUser({
       email    : $scope.signupForm.email,
       password : $scope.signupForm.password
@@ -48,7 +91,6 @@ angular.module('app.controllers', ['ionic','ngCordova'])
         console.log("Error creating user:", error);
       } else {
         console.log("Successfully created user account with uid:", userData.uid);
-        // var usersRef = ref.child("users");
         var username = $scope.signupForm.username;
         var email = $scope.signupForm.email;
         usersRef.child(userData.uid).set({
@@ -56,19 +98,16 @@ angular.module('app.controllers', ['ionic','ngCordova'])
           posts: [],
           email: email
         });
-        $state.go('login');
+       $state.go('login');
       }
     });
   }
 })
-
 .controller('loginCtrl', function($scope, $state) {
   $scope.signinForm = {};
   $scope.submit = function() {
     console.log($scope.signinForm.email);
     console.log($scope.signinForm.password);
-
-    var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
     ref.authWithPassword({
       email    : $scope.signinForm.email,
       password : $scope.signinForm.password
@@ -83,15 +122,10 @@ angular.module('app.controllers', ['ionic','ngCordova'])
       remember: "sessionOnly"
     });
   }
-
 })
-
 .controller('editPostCtrl', function($scope) {
-
 })
-
-.controller("cameraController", function ($scope, $cordovaCamera) {
-
+.controller("cameraController", function ($scope, $cordovaCamera, $state) {
     $scope.takePhoto = function () {
          $scope.imgURI = 'http://images.all-free-download.com/images/graphiclarge/daisy_pollen_flower_220533.jpg';
     //   var options = {
@@ -105,17 +139,14 @@ angular.module('app.controllers', ['ionic','ngCordova'])
     //     popoverOptions: CameraPopoverOptions,
     //     saveToPhotoAlbum: false
     // };
-
     //     $cordovaCamera.getPicture(options).then(function (imageData) {
     //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
     //     }, function (err) {
     //         // An error occured. Show a message to the user
     //     });
     }
-
     $scope.choosePhoto = function () {
         $scope.imgURI = 'http://media02.hongkiat.com/ww-flower-wallpapers/roundflower.jpg';
-
     //   var options = {
     //     quality: 75,
     //     destinationType: Camera.DestinationType.DATA_URL,
@@ -127,62 +158,59 @@ angular.module('app.controllers', ['ionic','ngCordova'])
     //     popoverOptions: CameraPopoverOptions,
     //     saveToPhotoAlbum: false
     // };
-
     //     $cordovaCamera.getPicture(options).then(function (imageData) {
     //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
     //     }, function (err) {
     //         // An error occured. Show a message to the user
     //     });
     }
-
-
     $scope.submit = function(imageURI) {
-
-      function getCurrentDate() {
-        var date  = new Date();
-        var month = date.getUTCMonth() + 1; //months from 1-12
-        var day = date.getUTCDate();
-        var year = date.getUTCFullYear();
-
-        var hour = date.getHours(); // => 9
-        var minute = date.getMinutes(); // =>  30
-
-        var newDate = year + "/" + month + "/" + day + "   ";
-        var newTime = hour + ":" + minute ;
-        return newDate + newTime;
-      }
-
       ref.onAuth(function(authData) {
         var username;
         var userRef = usersRef.child(authData.uid);
         userRef.on('value', function(snapshot) {
             username = snapshot.val().username;
         });
-
+        console.log("dddddd"+authData.uid);
+        console.log("dddddd"+username)
         postsRef.push().set({
           userid:authData.uid ,
           username: username,
-          imagePath: 'http://edge.alluremedia.com.au/m/k/2014/07/warcraft.jpg',
+          imagePath: imageURI,
           createdAt:getCurrentDate(),
           context: $scope.comment,
           like: ['userid1', 'userid2']
-
         });
+        $state.go('tabsController.home');
     }, function(err) {
         console.log(err);
     });
   }
-
-
-
   $scope.cancle = function() {
     console.log("cancel");
   }
-
+    //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+    // ref.createUser({
+    //   email    : $scope.signupForm.email,
+    //   password : $scope.signupForm.password
+    // }, function(error, userData) {
+    //   if (error) {
+    //     console.log("Error creating user:", error);
+    //   } else {
+    //     console.log("Successfully created user account with uid:", userData.uid);
+    //     // var usersRef = ref.child("users");
+    //     var username = $scope.signupForm.username;
+    //     var email = $scope.signupForm.email;
+    //     usersRef.child(userData.uid).set({
+    //       username: username,
+    //       posts: [],
+    //       email: email
+    //     });
+    //     $state.go('login');
+    //   }
+    // });
 })
-
 .controller('accountSettingCtrl', function($scope, $state) {
-  //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
   $scope.edit = function() {
     console.log('in edit');
     ref.onAuth(function(authData) {
@@ -192,28 +220,9 @@ angular.module('app.controllers', ['ionic','ngCordova'])
         console.log("Client unauthenticated.")
       }
     });
-    var date = new Date();
-    console.log(date);
-
   }
-
   $scope.logout = function() {
-    ref.unauth();
     $state.go('login');
-  }
-
-  // $scope.changePassword = function() {
-  //   ref.onAuth(function(authoData) {
-  //       postsRef.set({
-  //         userid:authData.uid ,
-  //         imagePath: 'http://edge.alluremedia.com.au/m/k/2014/07/warcraft.jpg',
-  //         createdAt: 'date1',
-  //         context: 'context1',
-  //         like: ['userid1', 'userid2']
-  //       });
-  //   }, function(err) {
-  //       console.log(err);
-  //   });
-  // }
+    ref.unauth();
+  };
 })
-
