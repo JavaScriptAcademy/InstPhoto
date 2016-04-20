@@ -60,21 +60,19 @@ angular.module('app.routes', [])
     templateUrl: 'templates/login.html',
     controller: 'loginCtrl'
   })
+  .state('user', {
+    url: '/user',
+    templateUrl: 'templates/user.html',
+    controller: 'userCtrl',
+    params: {
+        userid: null
+    }
+  })
 
   .state('editPost', {
     url: '/editPost',
     templateUrl: 'templates/editPost.html',
     controller: 'editPostCtrl'
   })
-
-  // .state('editPost', {
-  //   url: '/page7',
-  //   templateUrl: 'templates/shoot.html',
-  //   controller: 'ImagePickerController'
-  // })
-
-$urlRouterProvider.otherwise('/page1/page2')
-
-
-
+$urlRouterProvider.otherwise('/login')
 });

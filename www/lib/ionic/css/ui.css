@@ -222,3 +222,15 @@ input {
 .newlyComment {
 
 }
+
+.topbar {
+    text-align: center;
+}
+
+.posts {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 18px;
+    margin-left: 45px;
+    text-align: center;
+}
