@@ -75,24 +75,28 @@ angular.module('app.controllers', [])
   };
 
   ref.onAuth(function(authData) {
-    var usersRef = ref.child("users/" + authData.uid);
-    usersRef.on("value", function(snapshot) {
-      $scope.myData.username = snapshot.val().username;
-      console.log(snapshot.val().username);
-    }, function (errorObject) {
-      console.log("The read failed: " + errorObject.code);
-    });
-
-    postsRef.on("value", function(snapshot) {
-      snapshot.forEach(function(childSnapshot) {
-        if(childSnapshot.val().userid === authData.uid){
-          $scope.myData.posts.push(childSnapshot.val());
-        }
+    if(authData === null) {
+      $scope.myData.posts = [];
+    } else {
+      var usersRef = ref.child("users/" + authData.uid);
+      usersRef.on("value", function(snapshot) {
+        $scope.myData.username = snapshot.val().username;
+        console.log(snapshot.val().username);
+      }, function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
       });
-      $scope.myData.postsNum = $scope.myData.posts.length;
-    }, function (errorObject) {
-      console.log("The read failed: " + errorObject.code);
-    });
+
+      postsRef.on("value", function(snapshot) {
+        snapshot.forEach(function(childSnapshot) {
+          if(childSnapshot.val().userid === authData.uid){
+            $scope.myData.posts.push(childSnapshot.val());
+          }
+        });
+        $scope.myData.postsNum = $scope.myData.posts.length;
+      }, function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+      });
+    }
   });
 })
 
