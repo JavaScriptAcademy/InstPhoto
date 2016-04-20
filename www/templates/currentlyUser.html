@@ -7,7 +7,7 @@
     <ion-content padding="true" scroll="true" class="has-header">
         <div class="postHeader">
             <div class="item-avatar headerImage">
-                <img src="http://placekitten.com/60/60" />
+                <img src={{myData.photo}} />
             </div>
             <div class="posts">
                 <strong>{{myData.postsNum}}</strong><br>
@@ -23,12 +23,12 @@
             </div>
         </div>
 
-        <div class="homePost postHeader" ng-repeat="post in myData.posts" >
+        <div class="homePost postHeader" ng-repeat="post1 in myData.posts" >
             <div class="postDesc">
-                <p>{{post.context}}</p>
+                <p>{{post1.context}}</p>
             </div>
             <div class="postImage">
-                <img src="{{post.imagePath}}" />
+                <img src="{{post1.imagePath}}" />
             </div>
             <div class="postComment">
                 <div class="likeAndComment">
