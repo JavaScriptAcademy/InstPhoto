@@ -18,9 +18,7 @@ angular.module('app.controllers', [])
     });
   }
 })
-.controller('shootCtrl', function($scope) {
 
-})
 
 .controller('userCtrl', function($scope, $stateParams) {
   console.log($stateParams.userid);
@@ -143,13 +141,15 @@ angular.module('app.controllers', [])
   }
 
   $scope.logout = function() {
-    ref.unauth();
     $state.go('login');
+    ref.unauth();
+
   };
 
   $scope.changePassword = function() {
   }
 })
+
 
 
 
