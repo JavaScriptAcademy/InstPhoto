@@ -1,27 +1,62 @@
 // var Firebase = require("firebase");
-var ref = new Firebase("https://sweltering-heat-3844.firebaseio.com");
+var ref = new Firebase("https://glaring-fire-2965.firebaseio.com");
 var postsRef = ref.child('posts');
 var usersRef = ref.child("users");
 function getCurrentDate() {
-    var date  = new Date();
+    var date  = new Date().getTime();
+    return date;
+}
+
+function getDateString(date) {
     var month = date.getUTCMonth() + 1; //months from 1-12
     var day = date.getUTCDate();
     var year = date.getUTCFullYear();
+
     var hour = date.getHours(); // => 9
     var minute = date.getMinutes(); // =>  30
+
     var newDate = year + "/" + month + "/" + day + "   ";
     var newTime = hour + ":" + minute ;
     return newDate + newTime;
+}
+
+function reverseForIn(obj, f) {
+  var arr = [];
+  for (var key in obj) {
+    // add hasOwnPropertyCheck if needed
+    arr.push(key);
   }
+  for (var i=arr.length-1; i>=0; i--) {
+    f.call(obj, arr[i]);
+  }
+}
+
 angular.module('app.controllers', [])
-.controller('homeCtrl', function($scope, $state) {
+
+.controller('homeCtrl', function($scope, $state, $window) {
+
   postsRef.on("value", function(snapshot) {
-     // $scope.$apply(function() {
-    $scope.posts = snapshot.val();
-    //});
-  }, function (errorObject) {
+
+      $scope.moment = moment;
+
+      var posts = snapshot.val();
+
+      var newPosts = {};
+
+      reverseForIn(posts, function(key){
+       newPosts[key] = this[key];
+      });
+
+      $scope.posts = newPosts;
+
+      $scope.$apply();
+
+  }
+  , function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
+
+
   $scope.detail = function(userid) {
     $state.go('user', {
       userid: userid
