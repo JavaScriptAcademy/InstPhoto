@@ -1,24 +1,40 @@
-// var Firebase = require("firebase");
 
 var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
 
 var postsRef = ref.child('posts');
 var usersRef = ref.child("users");
 function getCurrentDate() {
-    var date  = new Date();
+    var date  = new Date().getTime();
+    return date;
+}
+
+function getDateString(date) {
     var month = date.getUTCMonth() + 1; //months from 1-12
     var day = date.getUTCDate();
     var year = date.getUTCFullYear();
+
     var hour = date.getHours(); // => 9
     var minute = date.getMinutes(); // =>  30
+
     var newDate = year + "/" + month + "/" + day + "   ";
     var newTime = hour + ":" + minute ;
     return newDate + newTime;
+}
+
+function reverseForIn(obj, f) {
+  var arr = [];
+  for (var key in obj) {
+    // add hasOwnPropertyCheck if needed
+    arr.push(key);
   }
+  for (var i=arr.length-1; i>=0; i--) {
+    f.call(obj, arr[i]);
+  }
+}
 
 
 angular.module('app.controllers', [])
-.controller('homeCtrl', function($scope, $state) {
+.controller('homeCtrl', function($scope, $state, $window) {
   $scope.posts = [];
   postsRef.on("value", function(snapshot) {
     $scope.posts = [];
@@ -31,6 +47,7 @@ angular.module('app.controllers', [])
         post.username = snapshot.val().username;
         post.photo = snapshot.val().photo;
         $scope.posts.push(post);
+
       }, function(errorObject) {
         console.log("The read failed: " + errorObject.code);
       });
@@ -45,6 +62,49 @@ angular.module('app.controllers', [])
       userid: userid
     });
   }
+  // postsRef.on("value", function(snapshot) {
+  //   $scope.moment = moment;
+  //   var posts = snapshot.val();
+  //   var newPosts = {};
+  //   console.log(snapshot.val());
+
+  //   reverseForIn(posts, function(key){
+  //    snapshot[key] = this[key];
+  //   });
+  //   console.log(snapshot.val());
+    // for (var post in newPosts) {
+
+    //   var postObj = newPosts[post];
+    //   console.log(postObj);
+
+    //   var userRef = usersRef.child(postObj.userid);
+    //   var username;
+    //   var photo;
+    //   userRef.on('value', function(snapshot) {
+    //     postObj.username = snapshot.val().username;
+    //     postObj.photo = snapshot.val().photo;
+    //     // console.log(newPosts[post]);
+
+    //     // newPosts[post]=postObj;
+    //     //console.log(newPosts[post]);
+    //     $scope.posts = newPosts;
+    //     console.log($scope.posts);
+
+    //   });
+
+    // }
+
+    // console.log(newPosts);
+  //   $scope.$apply();
+  // }, function (errorObject) {
+  //   console.log("The read failed: " + errorObject.code);
+  // });
+
+  // $scope.detail = function(userid) {
+  //   $state.go('user', {
+  //     userid: userid
+  //   });
+  // }
 })
 
 .controller('userCtrl', function($scope, $stateParams) {
@@ -129,6 +189,7 @@ angular.module('app.controllers', [])
           email: email,
           photo: 'http://t-1.tuzhan.com/42671170e37a/c-1/l/2012/09/21/15/2729ba416b0c495f9c847895388ab11c.jpg'
         });
+
         $ionicLoading.hide();
         $scope.signupForm.password = '';
         $scope.signupForm.email = '';
@@ -224,9 +285,10 @@ angular.module('app.controllers', [])
     }, function(err) {
         console.log(err);
     });
+
   }
   $scope.cancle = function() {
-    console.log("cancel");
+    $state.go('tabsController.home');
   }
     //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
     // ref.createUser({

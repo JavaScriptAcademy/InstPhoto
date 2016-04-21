@@ -7,11 +7,14 @@
                     <li><a href="index.html">Search Result #1<br /><span>Description...</span></a></li>
                     <li><a href="index.html">Search Result #2<br /><span>Description...</span></a></li>
                     <li><a href="index.html">Search Result #3<br /><span>Description...</span></a></li>
-                    <li><a href="index.html">Search Result #4</a></li>
+                    <li><a href="index.html">Searc  h Result #4</a></li>
                 </ul>
             </form>
         </div>
+                <!-- {{posts}} -->
+
         <div class="homePost" ng-repeat="post in posts">
+<!--         {{post.photo}} -->
             <div class="postHeader">
                 <div class="item-avatar headerImage" ng-click="detail(post.userid)">
                     <img src={{post.photo}} />
