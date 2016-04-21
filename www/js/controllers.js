@@ -18,6 +18,17 @@ angular.module('app.controllers', [])
   postsRef.on("value", function(snapshot) {
      // $scope.$apply(function() {
     $scope.posts = snapshot.val();
+    var currentlyId;
+    ref.onAuth(function(authData) {
+      currentlyId = authData.uid;
+    });
+    for(var post in $scope.posts){
+      for(var i = 0; i < $scope.posts[post].like.length; i++){
+        if($scope.posts[post].like[i] == currentlyId){
+          $scope.posts[post].islike = true;
+        }
+      }
+    }
     //});
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
@@ -27,6 +38,45 @@ angular.module('app.controllers', [])
       userid: userid
     });
   }
+
+  $scope.like = function(key){
+    var postRef = ref.child('posts/' + key);
+    var currentlyId;
+    ref.onAuth(function(authData) {
+      currentlyId = authData.uid;
+    });
+    postRef.once('value', function(snapshot){
+      var like = snapshot.val().like;
+      var flag = false;
+      for(var i = 0; i < like.length; i++){
+        if(like[i] == currentlyId){
+          flag = true;
+          like.splice(i, 1);
+        }
+      }
+      if(flag){
+        postRef.set({
+          userid:snapshot.val().userid ,
+          username: snapshot.val().username,
+          imagePath: snapshot.val().imagePath,
+          createdAt: snapshot.val().createdAt,
+          context: snapshot.val().context,
+          like: like
+        })
+      }else{
+        like.unshift(currentlyId);
+        postRef.set({
+          userid:snapshot.val().userid ,
+          username: snapshot.val().username,
+          imagePath: snapshot.val().imagePath,
+          createdAt: snapshot.val().createdAt,
+          context: snapshot.val().context,
+          like: like
+        })
+      }
+    });
+  }
+
 })
 .controller('userCtrl', function($scope, $stateParams) {
   console.log($stateParams.userid);
