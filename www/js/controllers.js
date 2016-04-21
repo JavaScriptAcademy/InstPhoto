@@ -102,16 +102,25 @@ angular.module('app.controllers', [])
     }
   });
 })
-.controller('signupCtrl', function($scope, $state) {
+.controller('signupCtrl', function($scope, $state, $ionicLoading) {
   $scope.signupForm = {};
   $scope.submit = function() {
+
+    $ionicLoading.show({
+      template: '<ion-spinner icon="bubbles"></ion-spinner>'
+    });
+
     ref.createUser({
       email    : $scope.signupForm.email,
       password : $scope.signupForm.password
     }, function(error, userData) {
       if (error) {
+        $scope.signupForm.msg = true;
         console.log("Error creating user:", error);
+        $scope.$apply();
+        $ionicLoading.hide();
       } else {
+        $scope.signupForm.msg = false;
         console.log("Successfully created user account with uid:", userData.uid);
         var username = $scope.signupForm.username;
         var email = $scope.signupForm.email;
@@ -120,24 +129,41 @@ angular.module('app.controllers', [])
           email: email,
           photo: 'http://t-1.tuzhan.com/42671170e37a/c-1/l/2012/09/21/15/2729ba416b0c495f9c847895388ab11c.jpg'
         });
+        $ionicLoading.hide();
+        $scope.signupForm.password = '';
+        $scope.signupForm.email = '';
+        $scope.signupForm.username = '';
         $state.go('login');
 
       }
     });
   }
 })
-.controller('loginCtrl', function($scope, $state) {
+.controller('loginCtrl', function($scope, $state, $ionicLoading) {
   $scope.signinForm = {};
   $scope.submit = function() {
+
+    $ionicLoading.show({
+      template: '<ion-spinner icon="bubbles"></ion-spinner>'
+    });
+
     ref.authWithPassword({
       email    : $scope.signinForm.email,
       password : $scope.signinForm.password
     }, function(error, authData) {
       if (error) {
+        $scope.signinForm.msg = true;
         console.log("Login Failed!", error);
+        $scope.$apply();
+        $ionicLoading.hide();
       } else {
+        $scope.signinForm.msg = false;
         console.log("Authenticated successfully with payload:", authData);
+        $ionicLoading.hide();
+        $scope.signinForm.password = '';
+        $scope.signinForm.email = '';
         $state.go('tabsController.home');
+
       }
     }, {
       remember: "sessionOnly"
@@ -187,16 +213,8 @@ angular.module('app.controllers', [])
     }
     $scope.submit = function(imageURI) {
       ref.onAuth(function(authData) {
-        // var username;
-        // var userRef = usersRef.child(authData.uid);
-        // userRef.on('value', function(snapshot) {
-        //     username = snapshot.val().username;
-        // });
-        // console.log("dddddd"+authData.uid);
-        // console.log("dddddd"+username)
         postsRef.push().set({
           userid:authData.uid ,
-          // username: username,
           imagePath: imageURI,
           createdAt:getCurrentDate(),
           context: $scope.comment,

@@ -15,6 +15,9 @@
                     <input name="password" type="password" placeholder="" ng-model="signupForm.password">
                 </label>
             </ion-list>
+            <div ng-show='signupForm.msg'>
+                The specified email address is already in use.
+            </div>
             <button id="signup-button8" class="button button-stable  button-block" type="submit">Sign up</button>
             <a href="/#/login"  class="button button-positive  button-block button-clear">Or Log In</a>
         </form>
