@@ -1,38 +1,74 @@
 // var Firebase = require("firebase");
-var ref = new Firebase("https://sweltering-heat-3844.firebaseio.com");
+var ref = new Firebase("https://glaring-fire-2965.firebaseio.com");
 var postsRef = ref.child('posts');
 var usersRef = ref.child("users");
 function getCurrentDate() {
-    var date  = new Date();
+    var date  = new Date().getTime();
+    return date;
+}
+
+function getDateString(date) {
     var month = date.getUTCMonth() + 1; //months from 1-12
     var day = date.getUTCDate();
     var year = date.getUTCFullYear();
+
     var hour = date.getHours(); // => 9
     var minute = date.getMinutes(); // =>  30
+
     var newDate = year + "/" + month + "/" + day + "   ";
     var newTime = hour + ":" + minute ;
     return newDate + newTime;
+}
+
+function reverseForIn(obj, f) {
+  var arr = [];
+  for (var key in obj) {
+    // add hasOwnPropertyCheck if needed
+    arr.push(key);
   }
+  for (var i=arr.length-1; i>=0; i--) {
+    f.call(obj, arr[i]);
+  }
+}
+
 angular.module('app.controllers', [])
-.controller('homeCtrl', function($scope, $state) {
+
+.controller('homeCtrl', function($scope, $state, $window) {
+
   postsRef.on("value", function(snapshot) {
-     // $scope.$apply(function() {
-    $scope.posts = snapshot.val();
-    var currentlyId;
-    ref.onAuth(function(authData) {
-      currentlyId = authData.uid;
-    });
-    for(var post in $scope.posts){
-      for(var i = 0; i < $scope.posts[post].like.length; i++){
-        if($scope.posts[post].like[i] == currentlyId){
-          $scope.posts[post].islike = true;
+
+      $scope.moment = moment;
+
+      var posts = snapshot.val();
+
+      var newPosts = {};
+
+      reverseForIn(posts, function(key){
+       newPosts[key] = this[key];
+      });
+
+      $scope.posts = newPosts;
+
+      var currentlyId;
+      ref.onAuth(function(authData) {
+        currentlyId = authData.uid;
+      });
+      for(var post in $scope.posts){
+        for(var i = 0; i < $scope.posts[post].like.length; i++){
+          if($scope.posts[post].like[i] == currentlyId){
+            $scope.posts[post].islike = true;
+          }
         }
       }
-    }
-    //});
-  }, function (errorObject) {
+
+      $scope.$apply();
+
+  }
+  , function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
+
+
   $scope.detail = function(userid) {
     $state.go('user', {
       userid: userid
@@ -79,7 +115,6 @@ angular.module('app.controllers', [])
 
 })
 .controller('userCtrl', function($scope, $stateParams) {
-  console.log($stateParams.userid);
   $scope.userdata = {};
   $scope.userdata.posts = [];
   postsRef.on("value", function(snapshot) {
@@ -113,11 +148,11 @@ angular.module('app.controllers', [])
       var usersRef = ref.child("users/" + authData.uid);
       usersRef.on("value", function(snapshot) {
         $scope.myData.username = snapshot.val().username;
-        console.log(snapshot.val().username);
       }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
       });
       postsRef.on("value", function(snapshot) {
+        $scope.myData.posts = [];
         snapshot.forEach(function(childSnapshot) {
           if(childSnapshot.val().userid === authData.uid){
             $scope.myData.posts.push(childSnapshot.val());
@@ -148,7 +183,8 @@ angular.module('app.controllers', [])
           posts: [],
           email: email
         });
-       $state.go('login');
+        $state.go('login');
+
       }
     });
   }
@@ -156,8 +192,6 @@ angular.module('app.controllers', [])
 .controller('loginCtrl', function($scope, $state) {
   $scope.signinForm = {};
   $scope.submit = function() {
-    console.log($scope.signinForm.email);
-    console.log($scope.signinForm.password);
     ref.authWithPassword({
       email    : $scope.signinForm.email,
       password : $scope.signinForm.password
@@ -221,8 +255,7 @@ angular.module('app.controllers', [])
         userRef.on('value', function(snapshot) {
             username = snapshot.val().username;
         });
-        console.log("dddddd"+authData.uid);
-        console.log("dddddd"+username)
+
         postsRef.push().set({
           userid:authData.uid ,
           username: username,
@@ -235,6 +268,7 @@ angular.module('app.controllers', [])
     }, function(err) {
         console.log(err);
     });
+
   }
   $scope.cancle = function() {
     console.log("cancel");

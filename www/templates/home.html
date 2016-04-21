@@ -7,7 +7,7 @@
                     <li><a href="index.html">Search Result #1<br /><span>Description...</span></a></li>
                     <li><a href="index.html">Search Result #2<br /><span>Description...</span></a></li>
                     <li><a href="index.html">Search Result #3<br /><span>Description...</span></a></li>
-                    <li><a href="index.html">Search Result #4</a></li>
+                    <li><a href="index.html">Searc  h Result #4</a></li>
                 </ul>
             </form>
         </div>
@@ -17,7 +17,7 @@
                     <img src="http://placekitten.com/60/60" />
                 </div>
                 <div class="postName"><strong>{{value.username}}</strong></div>
-                <div class="postTime">{{value.createdAt}}</div>
+                <div class="postTime">{{ moment(value.createdAt).fromNow() }}</div>
             </div>
             <div class="postDesc">
                 <p>{{value.context}}</p>
