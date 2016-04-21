@@ -1,0 +1,16 @@
+<ion-view title="Portrait" style="background-color:#F8CB6C;">
+    <ion-content scroll="true" padding="true">
+      <a href="/#/setting"><button class="button button-icon ion-ios-arrow-back"></button></a>
+      <div class="button-bar">
+        <button class="button button-block" ng-click="takePhoto()">Take Portrait</button>
+        <button class="button button-block" ng-click="choosePhoto()">Choose Portrait</button>
+      </div>
+      <form ng-show="imgURI !== undefined" class="list list-inset " ng-submit="submit(imgURI)">
+        <img ng-src="{{imgURI}}" style="width:100%; height: auto;">
+        <div class="button-bar">
+          <button class="button button-block" type = "submit" >Submit</button>
+          <button class="button button-block" ng-click="cancle()" >Cancel</button>
+        </div>
+      </form>
+    </ion-content>
+</ion-view>

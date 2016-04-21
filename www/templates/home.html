@@ -7,14 +7,14 @@
                     <li><a href="index.html">Search Result #1<br /><span>Description...</span></a></li>
                     <li><a href="index.html">Search Result #2<br /><span>Description...</span></a></li>
                     <li><a href="index.html">Search Result #3<br /><span>Description...</span></a></li>
-                    <li><a href="index.html">Searc  h Result #4</a></li>
+                    <li><a href="index.html">Search Result #4</a></li>
                 </ul>
             </form>
         </div>
         <div class="homePost" ng-repeat="(key, value) in posts">
             <div class="postHeader">
                 <div class="item-avatar headerImage" ng-click="detail(value.userid)">
-                    <img src="http://placekitten.com/60/60" />
+                    <img src={{post.photo}} />
                 </div>
                 <div class="postName"><strong>{{value.username}}</strong></div>
                 <div class="postTime">{{ moment(value.createdAt).fromNow() }}</div>
