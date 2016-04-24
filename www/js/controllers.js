@@ -35,24 +35,30 @@ function reverseForIn(obj, f) {
 
 angular.module('app.controllers', [])
 .controller('homeCtrl', function($scope, $state, $window) {
-  $scope.posts = [];
+  //$scope.posts = [];
   postsRef.on("value", function(snapshot) {
-    $scope.posts = [];
-    snapshot.forEach(function(childSnapshot) {
-      var post = childSnapshot.val();
-      var userRef = usersRef.child(post.userid);
-      var username;
-      var photo;
-      userRef.on('value', function(snapshot) {
-        post.username = snapshot.val().username;
-        post.photo = snapshot.val().photo;
-        $scope.posts.push(post);
+      $scope.moment = moment;
+      var posts = snapshot.val();
+      var newPosts = {};
 
-      }, function(errorObject) {
-        console.log("The read failed: " + errorObject.code);
+      reverseForIn(posts, function(key){
+       newPosts[key] = this[key];
       });
 
-    });
+      for(let key in newPosts){
+        var userRef = usersRef.child(newPosts[key].userid);
+        console.log(key);
+        userRef.on('value', function(snapshot) {
+          console.log(key);
+          newPosts[key].username = snapshot.val().username;
+          newPosts[key].photo = snapshot.val().photo;
+          $scope.posts = newPosts;
+          console.log($scope.posts);
+        }, function(errorObject) {
+          console.log("The read failed: " + errorObject.code);
+        });
+      }
+
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
