@@ -1,5 +1,7 @@
 
+
 var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+
 
 var postsRef = ref.child('posts');
 var usersRef = ref.child("users");
@@ -45,19 +47,37 @@ angular.module('app.controllers', [])
        newPosts[key] = this[key];
       });
 
+      var currentlyId;
+      ref.onAuth(function(authData) {
+        currentlyId = authData.uid;
+      });
+
+
       for(let key in newPosts){
         var userRef = usersRef.child(newPosts[key].userid);
-        console.log(key);
         userRef.on('value', function(snapshot) {
-          console.log(key);
           newPosts[key].username = snapshot.val().username;
           newPosts[key].photo = snapshot.val().photo;
           $scope.posts = newPosts;
           console.log($scope.posts);
+
+          for(var post in $scope.posts){
+            console.log($scope.posts[post]);
+            for(var i = 0; i < $scope.posts[post].like.length; i++){
+              if($scope.posts[post].like[i] == currentlyId){
+                $scope.posts[post].islike = true;
+              }
+            }
+          }
+
+
         }, function(errorObject) {
           console.log("The read failed: " + errorObject.code);
         });
       }
+
+      $scope.$apply();
+
 
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
@@ -68,49 +88,45 @@ angular.module('app.controllers', [])
       userid: userid
     });
   }
-  // postsRef.on("value", function(snapshot) {
-  //   $scope.moment = moment;
-  //   var posts = snapshot.val();
-  //   var newPosts = {};
-  //   console.log(snapshot.val());
 
-  //   reverseForIn(posts, function(key){
-  //    snapshot[key] = this[key];
-  //   });
-  //   console.log(snapshot.val());
-    // for (var post in newPosts) {
-
-    //   var postObj = newPosts[post];
-    //   console.log(postObj);
-
-    //   var userRef = usersRef.child(postObj.userid);
-    //   var username;
-    //   var photo;
-    //   userRef.on('value', function(snapshot) {
-    //     postObj.username = snapshot.val().username;
-    //     postObj.photo = snapshot.val().photo;
-    //     // console.log(newPosts[post]);
-
-    //     // newPosts[post]=postObj;
-    //     //console.log(newPosts[post]);
-    //     $scope.posts = newPosts;
-    //     console.log($scope.posts);
-
-    //   });
-
-    // }
-
-    // console.log(newPosts);
-  //   $scope.$apply();
-  // }, function (errorObject) {
-  //   console.log("The read failed: " + errorObject.code);
-  // });
-
-  // $scope.detail = function(userid) {
-  //   $state.go('user', {
-  //     userid: userid
-  //   });
-  // }
+  $scope.like = function(key){
+    console.log(key);
+    var postRef = ref.child('posts/' + key);
+    var currentlyId;
+    ref.onAuth(function(authData) {
+      currentlyId = authData.uid;
+    });
+    postRef.once('value', function(snapshot){
+      var like = snapshot.val().like;
+      var flag = false;
+      for(var i = 0; i < like.length; i++){
+        if(like[i] == currentlyId){
+          flag = true;
+          like.splice(i, 1);
+        }
+      }
+      if(flag){
+        postRef.set({
+          userid:snapshot.val().userid ,
+          //username: snapshot.val().username,
+          imagePath: snapshot.val().imagePath,
+          createdAt: snapshot.val().createdAt,
+          context: snapshot.val().context,
+          like: like
+        })
+      }else{
+        like.unshift(currentlyId);
+        postRef.set({
+          userid:snapshot.val().userid ,
+          //username: snapshot.val().username,
+          imagePath: snapshot.val().imagePath,
+          createdAt: snapshot.val().createdAt,
+          context: snapshot.val().context,
+          like: like
+        })
+      }
+    });
+  }
 })
 
 .controller('userCtrl', function($scope, $stateParams) {
