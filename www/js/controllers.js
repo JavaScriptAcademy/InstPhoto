@@ -1,5 +1,8 @@
-// var Firebase = require("firebase");
-var ref = new Firebase("https://sweltering-heat-3844.firebaseio.com");
+
+
+var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+
+
 var postsRef = ref.child('posts');
 var usersRef = ref.child("users");
 function getCurrentDate() {
@@ -31,39 +34,52 @@ function reverseForIn(obj, f) {
   }
 }
 
+
 angular.module('app.controllers', [])
-
 .controller('homeCtrl', function($scope, $state, $window) {
-
+  //$scope.posts = [];
   postsRef.on("value", function(snapshot) {
-
       $scope.moment = moment;
-
       var posts = snapshot.val();
-
       var newPosts = {};
 
       reverseForIn(posts, function(key){
        newPosts[key] = this[key];
       });
 
-      $scope.posts = newPosts;
-
       var currentlyId;
       ref.onAuth(function(authData) {
         currentlyId = authData.uid;
       });
-      for(var post in $scope.posts){
-        for(var i = 0; i < $scope.posts[post].like.length; i++){
-          if($scope.posts[post].like[i] == currentlyId){
-            $scope.posts[post].islike = true;
+
+
+      for(let key in newPosts){
+        var userRef = usersRef.child(newPosts[key].userid);
+        userRef.on('value', function(snapshot) {
+          newPosts[key].username = snapshot.val().username;
+          newPosts[key].photo = snapshot.val().photo;
+          $scope.posts = newPosts;
+          console.log($scope.posts);
+
+          for(var post in $scope.posts){
+            console.log($scope.posts[post]);
+            for(var i = 0; i < $scope.posts[post].like.length; i++){
+              if($scope.posts[post].like[i] == currentlyId){
+                $scope.posts[post].islike = true;
+              }
+            }
           }
-        }
+
+
+        }, function(errorObject) {
+          console.log("The read failed: " + errorObject.code);
+        });
       }
+
       $scope.$apply();
 
-  }
-  , function (errorObject) {
+
+  }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
 
@@ -74,6 +90,7 @@ angular.module('app.controllers', [])
   }
 
   $scope.like = function(key){
+    console.log(key);
     var postRef = ref.child('posts/' + key);
     var currentlyId;
     ref.onAuth(function(authData) {
@@ -108,7 +125,6 @@ angular.module('app.controllers', [])
       }
     });
   }
-
 })
 
 .controller('userCtrl', function($scope, $stateParams) {
@@ -292,7 +308,7 @@ angular.module('app.controllers', [])
 
   }
   $scope.cancle = function() {
-    console.log("cancel");
+    $state.go('tabsController.home');
   }
     //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
     // ref.createUser({
