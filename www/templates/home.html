@@ -7,27 +7,29 @@
                     <li><a href="index.html">Search Result #1<br /><span>Description...</span></a></li>
                     <li><a href="index.html">Search Result #2<br /><span>Description...</span></a></li>
                     <li><a href="index.html">Search Result #3<br /><span>Description...</span></a></li>
-                    <li><a href="index.html">Searc  h Result #4</a></li>
+                    <li><a href="index.html">Search Result #4</a></li>
                 </ul>
             </form>
         </div>
-        <div class="homePost" ng-repeat="post in posts">
+        <div class="homePost" ng-repeat="(key, value) in posts">
             <div class="postHeader">
-                <div class="item-avatar headerImage" ng-click="detail(post.userid)">
-                    <img src="http://placekitten.com/60/60" />
+                <div class="item-avatar headerImage" ng-click="detail(value.userid)">
+                    <img src={{post.photo}} />
                 </div>
-                <div class="postName"><strong>{{post.username}}</strong></div>
-                <div class="postTime">{{ moment(post.createdAt).fromNow() }}</div>
+                <div class="postName"><strong>{{value.username}}</strong></div>
+                <div class="postTime">{{ moment(value.createdAt).fromNow() }}</div>
             </div>
             <div class="postDesc">
-                <p>{{post.context}}</p>
+                <p>{{value.context}}</p>
             </div>
             <div class="postImage">
-                <img src="{{post.imagePath}}" />
+                <img src="{{value.imagePath}}" />
             </div>
             <div class="postComment">
                 <div class="likeAndComment">
-                    <span class="ion-ios-heart-outline"></span>
+                    <span class="ion-ios-heart" ng-click="like(key)" ng-show="value.islike"></span>
+                    <span class="ion-ios-heart-outline" ng-click="like(key)" ng-hide="value.islike"></span>
+                    <span></span>{{value.like.length}}
                     <span class="ion-ios-chatbubble-outline"></span>
                 </div>
                 <div class="newlyComment">

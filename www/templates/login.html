@@ -11,8 +11,13 @@
                     <input name="password" type="password" placeholder="" ng-model="signinForm.password">
                 </label>
             </ion-list>
+            <div ng-show='signinForm.msg'>
+                Please try to login with correct email or password.
+            </div>
             <div class="spacer" style="height: 40px;"></div>
             <button id="login-button9" class="button button-stable  button-block" type="submit">Log in</button>
+
+
             <a href="/#/signup" id="login-button10" class="button button-positive  button-block button-clear">Or create an account</a>
         </form>
     </ion-content>
