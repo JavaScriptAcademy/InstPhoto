@@ -10,6 +10,7 @@ angular.module('app.routes', [])
 
   .state('tabsController.home', {
     url: '/page2',
+    cache: false,
     views: {
       'tab1': {
         templateUrl: 'templates/home.html',

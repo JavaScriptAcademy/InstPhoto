@@ -1,6 +1,6 @@
 
 
-var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+var ref = new Firebase("https://sweltering-heat-3844.firebaseio.com");
 
 
 var postsRef = ref.child('posts');
@@ -52,29 +52,26 @@ angular.module('app.controllers', [])
         currentlyId = authData.uid;
       });
 
-
       for(let key in newPosts){
         var userRef = usersRef.child(newPosts[key].userid);
         userRef.on('value', function(snapshot) {
           newPosts[key].username = snapshot.val().username;
           newPosts[key].photo = snapshot.val().photo;
+          // console.log($scope.posts);
           $scope.posts = newPosts;
-          console.log($scope.posts);
-
           for(var post in $scope.posts){
-            console.log($scope.posts[post]);
+            // console.log($scope.posts[post]);
             for(var i = 0; i < $scope.posts[post].like.length; i++){
               if($scope.posts[post].like[i] == currentlyId){
                 $scope.posts[post].islike = true;
               }
             }
           }
-
-
         }, function(errorObject) {
           console.log("The read failed: " + errorObject.code);
         });
       }
+
 
       $scope.$apply();
 
@@ -293,19 +290,20 @@ angular.module('app.controllers', [])
     //     });
     }
     $scope.submit = function(imageURI) {
+      var currentlyId;
       ref.onAuth(function(authData) {
-        postsRef.push().set({
-          userid:authData.uid ,
-          imagePath: imageURI,
-          createdAt:getCurrentDate(),
-          context: $scope.comment,
-          like: ['userid1', 'userid2']
-        });
-        $state.go('tabsController.home');
-    }, function(err) {
-        console.log(err);
-    });
-
+        currentlyId = authData.uid;
+      }, function(err) {
+          console.log(err);
+      });
+      postsRef.push().set({
+        userid:currentlyId ,
+        imagePath: imageURI,
+        createdAt:getCurrentDate(),
+        context: $scope.comment,
+        like: [' ']
+      });
+      $state.go('tabsController.home');
   }
   $scope.cancle = function() {
     $state.go('tabsController.home');
