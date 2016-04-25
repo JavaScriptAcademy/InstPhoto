@@ -91,7 +91,6 @@ angular.module('app.controllers', [])
       if(flag){
         postRef.set({
           userid:snapshot.val().userid ,
-          username: snapshot.val().username,
           imagePath: snapshot.val().imagePath,
           createdAt: snapshot.val().createdAt,
           context: snapshot.val().context,
@@ -101,7 +100,6 @@ angular.module('app.controllers', [])
         like.unshift(currentlyId);
         postRef.set({
           userid:snapshot.val().userid ,
-          username: snapshot.val().username,
           imagePath: snapshot.val().imagePath,
           createdAt: snapshot.val().createdAt,
           context: snapshot.val().context,
