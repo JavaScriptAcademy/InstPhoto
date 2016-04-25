@@ -32,7 +32,11 @@
                 <div class="likeAndComment">
                     <span class="ion-ios-heart" ng-click="like(key)" ng-show="value.islike"></span>
                     <span class="ion-ios-heart-outline" ng-click="like(key)" ng-hide="value.islike"></span>
-                    <span></span>{{value.like.length}}
+                    <span></span>
+                    <div ng-if='showLike(value)' style="display: inline-block;">
+                        {{value.like.length-1}}
+                    </div>
+
                     <span class="ion-ios-chatbubble-outline"></span>
                 </div>
                 <div class="newlyComment">

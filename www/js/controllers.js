@@ -1,4 +1,4 @@
-
+'use strict';
 
 var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
 
@@ -14,10 +14,8 @@ function getDateString(date) {
     var month = date.getUTCMonth() + 1; //months from 1-12
     var day = date.getUTCDate();
     var year = date.getUTCFullYear();
-
     var hour = date.getHours(); // => 9
     var minute = date.getMinutes(); // =>  30
-
     var newDate = year + "/" + month + "/" + day + "   ";
     var newTime = hour + ":" + minute ;
     return newDate + newTime;
@@ -52,33 +50,24 @@ angular.module('app.controllers', [])
         currentlyId = authData.uid;
       });
 
-
       for(let key in newPosts){
         var userRef = usersRef.child(newPosts[key].userid);
         userRef.on('value', function(snapshot) {
           newPosts[key].username = snapshot.val().username;
           newPosts[key].photo = snapshot.val().photo;
           $scope.posts = newPosts;
-          console.log($scope.posts);
-
           for(var post in $scope.posts){
-            console.log($scope.posts[post]);
             for(var i = 0; i < $scope.posts[post].like.length; i++){
               if($scope.posts[post].like[i] == currentlyId){
                 $scope.posts[post].islike = true;
               }
             }
           }
-
-
         }, function(errorObject) {
           console.log("The read failed: " + errorObject.code);
         });
       }
-
       $scope.$apply();
-
-
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
@@ -89,101 +78,96 @@ angular.module('app.controllers', [])
     });
   }
 
-  $scope.like = function(key){
-    console.log(key);
-    var postRef = ref.child('posts/' + key);
-    var currentlyId;
-    ref.onAuth(function(authData) {
-      currentlyId = authData.uid;
-    });
-    postRef.once('value', function(snapshot){
-      var like = snapshot.val().like;
-      var flag = false;
-      for(var i = 0; i < like.length; i++){
-        if(like[i] == currentlyId){
-          flag = true;
-          like.splice(i, 1);
-        }
-      }
-      if(flag){
-        postRef.set({
-          userid:snapshot.val().userid ,
-          //username: snapshot.val().username,
-          imagePath: snapshot.val().imagePath,
-          createdAt: snapshot.val().createdAt,
-          context: snapshot.val().context,
-          like: like
-        })
-      }else{
-        like.unshift(currentlyId);
-        postRef.set({
-          userid:snapshot.val().userid ,
-          //username: snapshot.val().username,
-          imagePath: snapshot.val().imagePath,
-          createdAt: snapshot.val().createdAt,
-          context: snapshot.val().context,
-          like: like
-        })
-      }
-    });
-  }
+  $scope.showLike = showLike;
+  $scope.like = likePhoto;
 })
 
 .controller('userCtrl', function($scope, $stateParams) {
   $scope.userdata = {};
-  postsRef.on("value", function(snapshot) {
-    $scope.userdata.posts = [];
-    snapshot.forEach(function(childSnapshot) {
-      if(childSnapshot.val().userid === $stateParams.userid){
-        $scope.userdata.posts.push(childSnapshot.val());
-      }
-    });
-    $scope.userdata.postsNum = $scope.userdata.posts.length;
-  }, function (errorObject) {
-    console.log("The read failed: " + errorObject.code);
-  });
-  var userRef = ref.child("users/" + $stateParams.userid);
+
+  var userRef = usersRef.child($stateParams.userid);
   userRef.on("value", function(snapshot) {
     $scope.userdata.username = snapshot.val().username;
     $scope.userdata.photo = snapshot.val().photo;
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
+
+  postsRef.on("value", function(snapshot) {
+    $scope.userdata.posts = {};
+    for(let key in snapshot.val()) {
+      if(snapshot.val()[key].userid === $stateParams.userid){
+        $scope.userdata.posts[key] = snapshot.val()[key];
+      }
+    }
+    console.log($scope.userdata.posts);
+    var postsNum = 0;
+    for(let post in $scope.userdata.posts){
+      postsNum++;
+      console.log(postsNum);
+      for(let i = 0; i < $scope.userdata.posts[post].like.length; i++){
+        if($scope.userdata.posts[post].like[i] === $stateParams.userid){
+          $scope.userdata.posts[post].islike = true;
+        }
+      }
+    }
+    $scope.userdata.postsNum = postsNum;
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
+
+  $scope.showLike = showLike;
+  $scope.like = likePhoto;
 })
+
+
 .controller('currentlyUserCtrl', function($scope, $state) {
   $scope.myData = {};
-  $scope.myData.posts = [];
+
   $scope.goSetting = function() {
     $state.go('setting');
   };
+  var currentUid;
   ref.onAuth(function(authData) {
-    if(authData === null) {
-      $scope.myData.posts = [];
-    } else {
-      var usersRef = ref.child("users/" + authData.uid);
-
-      usersRef.on("value", function(snapshot) {
-        $scope.myData.username = snapshot.val().username;
-        $scope.myData.photo = snapshot.val().photo;
-
-      }, function (errorObject) {
-        console.log("The read failed: " + errorObject.code);
-      });
-
-      postsRef.on("value", function(snapshot) {
-        $scope.myData.posts = [];
-        snapshot.forEach(function(childSnapshot) {
-          if(childSnapshot.val().userid === authData.uid){
-            $scope.myData.posts.push(childSnapshot.val());
-          }
-        });
-        $scope.myData.postsNum = $scope.myData.posts.length;
-      }, function (errorObject) {
-        console.log("The read failed: " + errorObject.code);
-      });
+    if(authData){
+      currentUid = authData.uid;
     }
   });
+  var userRef = usersRef.child(currentUid);
+
+  userRef.on("value", function(snapshot) {
+    $scope.myData.username = snapshot.val().username;
+    $scope.myData.photo = snapshot.val().photo;
+
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
+
+  postsRef.on("value", function(snapshot) {
+    $scope.myData.posts = {};
+    for(let key in snapshot.val()) {
+      if(snapshot.val()[key].userid === currentUid){
+        $scope.myData.posts[key] = snapshot.val()[key];
+      }
+    }
+    var postsNum = 0;
+    for(let post in $scope.myData.posts){
+      postsNum++;
+      for(let i = 0; i < $scope.myData.posts[post].like.length; i++){
+        if($scope.myData.posts[post].like[i] === currentUid){
+          $scope.myData.posts[post].islike = true;
+        }
+      }
+    }
+    $scope.myData.postsNum = postsNum;
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
+
+  $scope.showLike = showLike;
+  $scope.like = likePhoto;
 })
+
 .controller('signupCtrl', function($scope, $state, $ionicLoading) {
   $scope.signupForm = {};
   $scope.submit = function() {
@@ -217,11 +201,12 @@ angular.module('app.controllers', [])
         $scope.signupForm.email = '';
         $scope.signupForm.username = '';
         $state.go('login');
-
       }
     });
   }
 })
+
+
 .controller('loginCtrl', function($scope, $state, $ionicLoading) {
   $scope.signinForm = {};
   $scope.submit = function() {
@@ -253,47 +238,14 @@ angular.module('app.controllers', [])
     });
   }
 })
+
 .controller('editPostCtrl', function($scope) {
 })
+
 .controller("cameraController", function ($scope, $cordovaCamera, $state) {
-    $scope.takePhoto = function () {
-         $scope.imgURI = 'http://images.all-free-download.com/images/graphiclarge/daisy_pollen_flower_220533.jpg';
-    //   var options = {
-    //     quality: 75,
-    //     destinationType: Camera.DestinationType.DATA_URL,
-    //     sourceType: Camera.PictureSourceType.CAMERA,
-    //     allowEdit: true,
-    //     encodingType: Camera.EncodingType.JPEG,
-    //     targetWidth: 300,
-    //     targetHeight: 300,
-    //     popoverOptions: CameraPopoverOptions,
-    //     saveToPhotoAlbum: false
-    // };
-    //     $cordovaCamera.getPicture(options).then(function (imageData) {
-    //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
-    //     }, function (err) {
-    //         // An error occured. Show a message to the user
-    //     });
-    }
-    $scope.choosePhoto = function () {
-        $scope.imgURI = 'http://media02.hongkiat.com/ww-flower-wallpapers/roundflower.jpg';
-    //   var options = {
-    //     quality: 75,
-    //     destinationType: Camera.DestinationType.DATA_URL,
-    //     sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
-    //     allowEdit: true,
-    //     encodingType: Camera.EncodingType.JPEG,
-    //     targetWidth: 300,
-    //     targetHeight: 300,
-    //     popoverOptions: CameraPopoverOptions,
-    //     saveToPhotoAlbum: false
-    // };
-    //     $cordovaCamera.getPicture(options).then(function (imageData) {
-    //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
-    //     }, function (err) {
-    //         // An error occured. Show a message to the user
-    //     });
-    }
+    $scope.takePhoto = takePhoto($scope, $cordovaCamera);
+    $scope.choosePhoto = choosePhoto($scope, $cordovaCamera);
+
     $scope.submit = function(imageURI) {
       ref.onAuth(function(authData) {
         postsRef.push().set({
@@ -301,38 +253,16 @@ angular.module('app.controllers', [])
           imagePath: imageURI,
           createdAt:getCurrentDate(),
           context: $scope.comment,
-          like: ['userid1', 'userid2']
+          like: ['']
         });
         $state.go('tabsController.home');
     }, function(err) {
         console.log(err);
     });
-
   }
-  $scope.cancle = function() {
-    $state.go('tabsController.home');
-  }
-    //var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
-    // ref.createUser({
-    //   email    : $scope.signupForm.email,
-    //   password : $scope.signupForm.password
-    // }, function(error, userData) {
-    //   if (error) {
-    //     console.log("Error creating user:", error);
-    //   } else {
-    //     console.log("Successfully created user account with uid:", userData.uid);
-    //     // var usersRef = ref.child("users");
-    //     var username = $scope.signupForm.username;
-    //     var email = $scope.signupForm.email;
-    //     usersRef.child(userData.uid).set({
-    //       username: username,
-    //       posts: [],
-    //       email: email
-    //     });
-    //     $state.go('login');
-    //   }
-    // });
 })
+
+
 .controller('accountSettingCtrl', function($scope, $state) {
   $scope.edit = function() {
     console.log('in edit');
@@ -354,45 +284,8 @@ angular.module('app.controllers', [])
 })
 
 .controller('portraitCtrl', function($scope, $cordovaCamera, $state) {
-  $scope.takePhoto = function() {
-    $scope.imgURI = 'http://t-1.tuzhan.com/58894d829037/c-1/l/2012/09/21/17/382b2222e1884281870df47e1ae3f32d.jpg';
-//   var options = {
-//     quality: 75,
-//     destinationType: Camera.DestinationType.DATA_URL,
-//     sourceType: Camera.PictureSourceType.CAMERA,
-//     allowEdit: true,
-//     encodingType: Camera.EncodingType.JPEG,
-//     targetWidth: 300,
-//     targetHeight: 300,
-//     popoverOptions: CameraPopoverOptions,
-//     saveToPhotoAlbum: false
-// };
-//     $cordovaCamera.getPicture(options).then(function (imageData) {
-//         $scope.imgURI = "data:image/jpeg;base64," + imageData;
-//     }, function (err) {
-//         // An error occured. Show a message to the user
-//     });
-  }
-
-  $scope.choosePhoto = function() {
-    $scope.imgURI = 'http://ww2.sinaimg.cn/crop.0.0.1080.1080.1024/d773ebfajw8eum57eobkwj20u00u075w.jpg';
-    //   var options = {
-    //     quality: 75,
-    //     destinationType: Camera.DestinationType.DATA_URL,
-    //     sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
-    //     allowEdit: true,
-    //     encodingType: Camera.EncodingType.JPEG,
-    //     targetWidth: 300,
-    //     targetHeight: 300,
-    //     popoverOptions: CameraPopoverOptions,
-    //     saveToPhotoAlbum: false
-    // };
-    //     $cordovaCamera.getPicture(options).then(function (imageData) {
-    //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
-    //     }, function (err) {
-    //         // An error occured. Show a message to the user
-    //     });
-  }
+  $scope.takePhoto = takePhoto($scope, $cordovaCamera);
+  $scope.choosePhoto = choosePhoto($scope, $cordovaCamera);
 
   $scope.submit = function(imageURI) {
     console.log(imageURI);
@@ -421,3 +314,86 @@ angular.module('app.controllers', [])
     console.log("cancel");
   }
 })
+
+var showLike = function(post) {
+  return post.like.length !== 1;
+}
+
+var likePhoto = function(key){
+    console.log(key);
+    var postRef = ref.child('posts/' + key);
+    var currentlyId;
+    ref.onAuth(function(authData) {
+      currentlyId = authData.uid;
+    });
+    postRef.once('value', function(snapshot){
+      var like = snapshot.val().like;
+      var flag = false;
+      for(var i = 0; i < like.length-1; i++){
+        if(like[i] === currentlyId){
+          flag = true;
+          like.splice(i, 1);
+        }
+      }
+      if(flag){
+        postRef.set({
+          userid:snapshot.val().userid ,
+          //username: snapshot.val().username,
+          imagePath: snapshot.val().imagePath,
+          createdAt: snapshot.val().createdAt,
+          context: snapshot.val().context,
+          like: like
+        })
+      }else{
+        like.unshift(currentlyId);
+        postRef.set({
+          userid:snapshot.val().userid ,
+          //username: snapshot.val().username,
+          imagePath: snapshot.val().imagePath,
+          createdAt: snapshot.val().createdAt,
+          context: snapshot.val().context,
+          like: like
+        })
+      }
+    });
+  }
+
+var choosePhoto = function ($scope, $cordovaCamera) {
+  $scope.imgURI = 'http://media02.hongkiat.com/ww-flower-wallpapers/roundflower.jpg';
+  //   var options = {
+  //     quality: 75,
+  //     destinationType: Camera.DestinationType.DATA_URL,
+  //     sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+  //     allowEdit: true,
+  //     encodingType: Camera.EncodingType.JPEG,
+  //     targetWidth: 300,
+  //     targetHeight: 300,
+  //     popoverOptions: CameraPopoverOptions,
+  //     saveToPhotoAlbum: false
+  // };
+  //     $cordovaCamera.getPicture(options).then(function (imageData) {
+  //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
+  //     }, function (err) {
+  //         // An error occured. Show a message to the user
+  //     });
+}
+
+var takePhoto = function ($scope, $cordovaCamera) {
+  $scope.imgURI = 'http://images.all-free-download.com/images/graphiclarge/daisy_pollen_flower_220533.jpg';
+  //   var options = {
+  //     quality: 75,
+  //     destinationType: Camera.DestinationType.DATA_URL,
+  //     sourceType: Camera.PictureSourceType.CAMERA,
+  //     allowEdit: true,
+  //     encodingType: Camera.EncodingType.JPEG,
+  //     targetWidth: 300,
+  //     targetHeight: 300,
+  //     popoverOptions: CameraPopoverOptions,
+  //     saveToPhotoAlbum: false
+  // };
+  //     $cordovaCamera.getPicture(options).then(function (imageData) {
+  //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
+  //     }, function (err) {
+  //         // An error occured. Show a message to the user
+  //     });
+}
