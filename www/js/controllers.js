@@ -6,7 +6,9 @@ var usersRef = ref.child("users");
 
 var currentlyId;
 ref.onAuth(function(authData) {
-  currentlyId = authData.uid;
+  if(authData){
+    currentlyId = authData.uid;
+  }
 });
 
 function getCurrentDate() {
