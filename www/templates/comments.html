@@ -1,0 +1,23 @@
+<ion-view title="Comments" style="background-color:#F8CB6C;">
+    <ion-content padding="true" scroll="false" class="has-header">
+        <a href="/#/page1/page2"><button class="button button-icon ion-ios-arrow-back">
+          </button></a>
+        <div class="comments" ng-repeat="(key, value) in comments">
+            <div class="item-avatar headerImage" ng-click="detail(key)">
+                    <img src={{value.photo}} />
+            </div>
+            <div class="commentContent">
+                <div style="margin-top: 10px">
+                    {{value.username}}<br>
+                </div>
+                <div style="margin-top: 10px">
+                    {{value.content}}
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </ion-content>
+</ion-view>

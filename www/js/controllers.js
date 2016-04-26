@@ -166,7 +166,7 @@ angular.module('app.controllers', [])
       }
       $scope.userdata.postsNum = postsNum;
     }, function (errorObject) {
-    console.log("The read failed: " + errorObject.code);
+      console.log("The read failed: " + errorObject.code);
     });
   });
 
@@ -295,7 +295,17 @@ angular.module('app.controllers', [])
       imagePath: imageURI,
       createdAt:getCurrentDate(),
       context: $scope.comment,
-      like: ['']
+      like: [''],
+      comments: {
+        'commentid1': {
+          userid: '8e96bd33-9fed-4128-a43b-5ea4cf07ed64',
+          content: 'first com'
+        },
+        'commentid2': {
+          userid: 'b328a4e7-4b77-4959-b834-6fb6c3620102',
+          content: 'second com'
+        }
+      }
     });
     $state.go('tabsController.home');
   }
@@ -387,6 +397,42 @@ angular.module('app.controllers', [])
     $scope.cancle = function() {
       console.log("cancel");
     }
+})
+
+.controller('commentsCtrl', function($scope, $stateParams, $state) {
+  // let postid = $stateParams.postid;
+  let postid = '-KGGQTfhdw30SQdZqmDk';
+  // console.log($stateParams.postid);
+  let postRef = postsRef.child(postid);
+  postRef.on('value', function(postSnapshot) {
+    let comments = {};
+    reverseForIn(postSnapshot.val().comments, function(key){
+     comments[key] = this[key];
+    });
+
+    for(let key in comments){
+      //if(key === 'commentid')continue;
+      let userRef = usersRef.child(postSnapshot.val().userid);
+      userRef.on('value', function(userSnapshot) {
+        comments[key].username = userSnapshot.val().username;
+        comments[key].photo = userSnapshot.val().photo;
+        $scope.comments = comments;
+        console.log($scope.comments);
+      });
+    }
+
+
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
+
+
+  $scope.detail = function(userid) {
+    $state.go('user', {
+      userid: userid
+    });
+  }
+
 })
 
 var showLike = function(post) {

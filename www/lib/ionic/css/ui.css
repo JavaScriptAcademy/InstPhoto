@@ -234,3 +234,15 @@ input {
     text-align: center;
 }
 
+.comments {
+    margin-top: 10px;
+    width: 100%;
+    position: relative;
+    border: 1px solid gray;
+}
+
+.commentContent {
+    display: inline-block;
+    text-align: center;
+}
+
