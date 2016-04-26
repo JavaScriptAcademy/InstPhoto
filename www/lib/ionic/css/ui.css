@@ -246,3 +246,12 @@ input {
     text-align: center;
 }
 
+.follow {
+    margin-right: 20px;
+    margin-left: 20px;
+}
+
+.test {
+    width: 100%;
+}
+

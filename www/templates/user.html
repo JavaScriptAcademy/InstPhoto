@@ -14,12 +14,16 @@
                 <strong>posts</strong>
             </div>
             <div class="posts">
-                <strong>X</strong><br>
-                <strong>followed</strong>
+                <strong>{{userdata.follower}}</strong><br>
+                <strong>follower</strong>
             </div>
             <div class="posts">
-                <strong>X</strong><br>
-                <strong>follower</strong>
+                <strong>{{userdata.followed}}</strong><br>
+                <strong>followed</strong>
+            </div>
+            <div class="follow" ng-hide='isCurUserItself'>
+                <button class="button button-block button-balanced" ng-show='isfollowed' ng-click='unfollow()'>Followed!</button>
+                <button class="button button-block button-calm" ng-hide='isfollowed' ng-click='follow()'>Follow</button>
             </div>
         </div>
 

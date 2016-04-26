@@ -85,11 +85,27 @@ angular.module('app.controllers', [])
 
 .controller('userCtrl', function($scope, $stateParams) {
   $scope.userdata = {};
-
+  if($stateParams.userid === currentlyId) {
+    $scope.isCurUserItself = true;
+  }
   var userRef = usersRef.child($stateParams.userid);
   userRef.on("value", function(snapshot) {
+    console.log('in userRef.on');
+    console.log(snapshot.val());
+
     $scope.userdata.username = snapshot.val().username;
     $scope.userdata.photo = snapshot.val().photo;
+    ref.onAuth(function(authData) {
+      for(let index = 0; index < snapshot.val().follower.length-1; index++){
+        if(snapshot.val().follower[index] === currentlyId){
+          console.log('find it');
+          $scope.isfollowed = true;
+        }
+      }
+    });
+    $scope.userdata.follower = snapshot.val().follower.length-1;
+    $scope.userdata.followed = snapshot.val().followed.length-1;
+
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
@@ -109,7 +125,6 @@ angular.module('app.controllers', [])
     var postsNum = 0;
     for(let post in $scope.userdata.posts){
       postsNum++;
-      console.log(postsNum);
       for(let i = 0; i < $scope.userdata.posts[post].like.length; i++){
         if($scope.userdata.posts[post].like[i] === currentlyId){
           $scope.userdata.posts[post].islike = true;
@@ -123,6 +138,99 @@ angular.module('app.controllers', [])
 
   $scope.showLike = showLike;
   $scope.like = likePhoto;
+  $scope.follow = function() {
+    console.log('follow func');
+    var userToBeFollowedRef = usersRef.child($stateParams.userid);
+    userToBeFollowedRef.once("value", function(snapshot) {
+      var follower = snapshot.val().follower;
+      var email = snapshot.val().email;
+      var username = snapshot.val().username;
+      var photo = snapshot.val().photo;
+      var followed = snapshot.val().followed;
+      follower.unshift(currentlyId);
+      userToBeFollowedRef.set({
+        username: username,
+        email: email,
+        photo: photo,
+        follower: follower,
+        followed: followed
+      });
+    });
+
+    var userRef = usersRef.child(currentlyId);
+    userRef.once("value", function(snapshot) {
+      var follower = snapshot.val().follower;
+      var email = snapshot.val().email;
+      var username = snapshot.val().username;
+      var photo = snapshot.val().photo;
+      var followed = snapshot.val().followed;
+      followed.unshift($stateParams.userid);
+      userRef.set({
+        username: username,
+        email: email,
+        photo: photo,
+        follower: follower,
+        followed: followed
+      });
+    });
+    $scope.isfollowed = true;
+    console.log('end');
+  }
+
+  $scope.unfollow = function() {
+    console.log('unfollow func');
+
+    var userRef = usersRef.child(currentlyId);
+    userRef.once("value", function(snapshot) {
+      console.log('in userRef');
+      var follower = snapshot.val().follower;
+      var email = snapshot.val().email;
+      var username = snapshot.val().username;
+      var photo = snapshot.val().photo;
+      var followed = snapshot.val().followed;
+      for(let index = 0; index < followed.length-1; index++){
+        if(followed[index] === $stateParams.userid){
+          followed.splice(index, 1);
+          console.log('remove in followed');
+        }
+      }
+      userRef.set({
+        username: username,
+        email: email,
+        photo: photo,
+        follower: follower,
+        followed: followed
+      });
+    });
+
+
+    var userToBeFollowedRef = usersRef.child($stateParams.userid);
+    userToBeFollowedRef.once("value", function(snapshot) {
+      var follower = snapshot.val().follower;
+      var email = snapshot.val().email;
+      var username = snapshot.val().username;
+      var photo = snapshot.val().photo;
+      var followed = snapshot.val().followed;
+      console.log(snapshot.val());
+      for(let index = 0; index < follower.length-1; index++){
+        if(follower[index] === currentlyId){
+          follower.splice(index, 1);
+          console.log('remove in follower');
+        }
+      }
+
+      userToBeFollowedRef.set({
+        username: username,
+        email: email,
+        photo: photo,
+        follower: follower,
+        followed: followed
+      });
+    });
+    $scope.isfollowed = false;
+
+    console.log('end');
+  }
 })
 
 
@@ -139,6 +247,8 @@ angular.module('app.controllers', [])
     userRef.on("value", function(snapshot) {
       $scope.userdata.username = snapshot.val().username;
       $scope.userdata.photo = snapshot.val().photo;
+      $scope.userdata.follower = snapshot.val().follower.length-1;
+      $scope.userdata.followed = snapshot.val().followed.length-1;
 
     }, function (errorObject) {
       console.log("The read failed: " + errorObject.code);
@@ -196,9 +306,13 @@ angular.module('app.controllers', [])
         console.log("Successfully created user account with uid:", userData.uid);
         var username = $scope.signupForm.username;
         var email = $scope.signupForm.email;
+        var follower = [''];
+        var followed = [''];
         usersRef.child(userData.uid).set({
           username: username,
           email: email,
+          follower: follower,
+          followed: followed,
           photo: 'http://t-1.tuzhan.com/42671170e37a/c-1/l/2012/09/21/15/2729ba416b0c495f9c847895388ab11c.jpg'
         });
 
