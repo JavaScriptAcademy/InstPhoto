@@ -11,34 +11,6 @@ ref.onAuth(function(authData) {
   }
 });
 
-function getCurrentDate() {
-  var date  = new Date().getTime();
-  return date;
-}
-
-function getDateString(date) {
-    var month = date.getUTCMonth() + 1; //months from 1-12
-    var day = date.getUTCDate();
-    var year = date.getUTCFullYear();
-    var hour = date.getHours(); // => 9
-    var minute = date.getMinutes(); // =>  30
-    var newDate = year + "/" + month + "/" + day + "   ";
-    var newTime = hour + ":" + minute ;
-    return newDate + newTime;
-}
-
-function reverseForIn(obj, f) {
-  var arr = [];
-  for (var key in obj) {
-    // add hasOwnPropertyCheck if needed
-    arr.push(key);
-  }
-  for (var i=arr.length-1; i>=0; i--) {
-    f.call(obj, arr[i]);
-  }
-}
-
-
 angular.module('app.controllers', [])
 .controller('homeCtrl', function($scope, $state, $window) {
   //$scope.posts = [];
@@ -491,16 +463,22 @@ angular.module('app.controllers', [])
         var userRef = usersRef.child(authData.uid);
         var username;
         var email;
+        var follower;
+        var followed;
         userRef.on('value', function(snapshot) {
           username = snapshot.val().username;
           email = snapshot.val().email;
+          followed = snapshot.val().followed;
+          follower = snapshot.val().follower;
         }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
         });
         userRef.set({
           email: email,
           photo: imageURI,
-          username: username
+          username: username,
+          follower: follower,
+          followed: followed
         });
         $state.go('tabsController.currentlyUser');
       }, function(err) {
@@ -547,6 +525,33 @@ angular.module('app.controllers', [])
   }
 
 })
+
+function getCurrentDate() {
+  var date  = new Date().getTime();
+  return date;
+}
+
+function getDateString(date) {
+    var month = date.getUTCMonth() + 1; //months from 1-12
+    var day = date.getUTCDate();
+    var year = date.getUTCFullYear();
+    var hour = date.getHours(); // => 9
+    var minute = date.getMinutes(); // =>  30
+    var newDate = year + "/" + month + "/" + day + "   ";
+    var newTime = hour + ":" + minute ;
+    return newDate + newTime;
+}
+
+function reverseForIn(obj, f) {
+  var arr = [];
+  for (var key in obj) {
+    // add hasOwnPropertyCheck if needed
+    arr.push(key);
+  }
+  for (var i=arr.length-1; i>=0; i--) {
+    f.call(obj, arr[i]);
+  }
+}
 
 var showLike = function(post) {
   return post.like.length !== 1;
