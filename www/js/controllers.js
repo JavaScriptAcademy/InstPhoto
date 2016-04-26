@@ -402,7 +402,6 @@ angular.module('app.controllers', [])
 .controller('commentsCtrl', function($scope, $stateParams, $state) {
   // let postid = $stateParams.postid;
   let postid = '-KGGQTfhdw30SQdZqmDk';
-  // console.log($stateParams.postid);
   let postRef = postsRef.child(postid);
   postRef.on('value', function(postSnapshot) {
     let comments = {};
