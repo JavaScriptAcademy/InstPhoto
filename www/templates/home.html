@@ -11,13 +11,16 @@
                 </ul>
             </form>
         </div>
+
         <div class="homePost" ng-repeat="(key, value) in posts">
             <div class="postHeader">
                 <div class="item-avatar headerImage" ng-click="detail(value.userid)">
-                    <img src={{post.photo}} />
+                    <img src={{value.photo}} />
                 </div>
+
                 <div class="postName"><strong>{{value.username}}</strong></div>
                 <div class="postTime">{{ moment(value.createdAt).fromNow() }}</div>
+
             </div>
             <div class="postDesc">
                 <p>{{value.context}}</p>
@@ -29,7 +32,13 @@
                 <div class="likeAndComment">
                     <span class="ion-ios-heart" ng-click="like(key)" ng-show="value.islike"></span>
                     <span class="ion-ios-heart-outline" ng-click="like(key)" ng-hide="value.islike"></span>
-                    <span></span>{{value.like.length}}
+
+                    <span></span>
+                    <div ng-if='showLike(value)' style="display: inline-block;">
+                        {{value.like.length-1}}
+                    </div>
+
+
                     <span class="ion-ios-chatbubble-outline"></span>
                 </div>
                 <div class="newlyComment">

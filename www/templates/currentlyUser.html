@@ -22,24 +22,29 @@
                 <strong>follower</strong>
             </div>
         </div>
-
-        <div class="homePost postHeader" ng-repeat="post1 in myData.posts" >
+​
+        <div class="homePost postHeader" ng-repeat="(key, value) in myData.posts" >
             <div class="postDesc">
-                <p>{{post1.context}}</p>
+                <p>{{value.context}}</p>
             </div>
             <div class="postImage">
-                <img src="{{post1.imagePath}}" />
+                <img src="{{value.imagePath}}" />
             </div>
             <div class="postComment">
                 <div class="likeAndComment">
-                    <span class="ion-ios-heart-outline"></span>
+                    <span class="ion-ios-heart" ng-click="like(key)" ng-show="value.islike"></span>
+                    <span class="ion-ios-heart-outline" ng-click="like(key)" ng-hide="value.islike"></span>
+                    <span></span>
+                    <div ng-if='showLike(value)' style="display: inline-block;">
+                        {{value.like.length-1}}
+                    </div>
                     <span class="ion-ios-chatbubble-outline"></span>
                 </div>
                 <div class="newlyComment">
-
+​
                 </div>
             </div>
         </div>
-
+​
     </ion-content>
 </ion-view>
