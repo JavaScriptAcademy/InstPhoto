@@ -82,5 +82,14 @@ angular.module('app.routes', [])
     templateUrl: 'templates/editPost.html',
     controller: 'editPostCtrl'
   })
-$urlRouterProvider.otherwise('/login')
+
+  .state('comments', {
+     url: '/comments',
+     templateUrl: 'templates/comments.html',
+     controller: 'commentsCtrl',
+     params: {
+      postid: null
+    }
+  })
+  $urlRouterProvider.otherwise('/login')
 });
