@@ -308,6 +308,12 @@ angular.module('app.controllers', [])
 
   $scope.showLike = showLike;
   $scope.like = likePhoto;
+  $scope.delete = function(postid) {
+    console.log(postid);
+    let postRef = postsRef.child(postid);
+    postRef.set(null);
+  }
+
 })
 
 .controller('signupCtrl', function($scope, $state, $ionicLoading) {
