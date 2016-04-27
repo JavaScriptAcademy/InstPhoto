@@ -37,10 +37,19 @@
                         {{value.like.length-1}}
                     </div>
 
-                    <span class="ion-ios-chatbubble-outline"></span>
+                    <span class="ion-ios-chatbubble-outline" ng-click="showComment()"></span>
                 </div>
-                <div class="newlyComment">
-
+                <div class="newlyComment" ng-if="value.lastcommentUser">
+                    <div><span>{{value.lastcommentUser}}: </span> {{value.lastcommentContent}}</div>
+                    <div ng-if="value.sLastcommentUser">
+                        <span>{{value.sLastcommentUser}}: </span> {{value.sLastcommentContent}}
+                    </div>
+                    <div class="seeMore" ng-click="commentsPage(key)">click to see more comments</div>
+                </div>
+                <div class="commentNow" ng-show="commentInput">
+                    <form ng-keydown="submitComment($event, key)">
+                        <input type="text" placeholder="comment..." id="comment" />
+                    </form>
                 </div>
             </div>
         </div>

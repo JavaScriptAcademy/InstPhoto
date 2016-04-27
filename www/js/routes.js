@@ -10,6 +10,7 @@ angular.module('app.routes', [])
 
   .state('tabsController.home', {
     url: '/page2',
+    cache: false,
     views: {
       'tab1': {
         templateUrl: 'templates/home.html',
@@ -83,9 +84,12 @@ angular.module('app.routes', [])
   })
 
   .state('comments', {
-    url: '/comments',
-    templateUrl: 'templates/comments.html',
-    controller: 'commentsCtrl'
+     url: '/comments',
+     templateUrl: 'templates/comments.html',
+     controller: 'commentsCtrl',
+     params: {
+      postid: null
+    }
   })
-$urlRouterProvider.otherwise('/login')
+  $urlRouterProvider.otherwise('/login')
 });
