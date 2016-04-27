@@ -79,6 +79,7 @@ angular.module('app.controllers', [])
       });
     }
 
+    //$scope.$apply();
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
@@ -282,6 +283,14 @@ angular.module('app.controllers', [])
     console.log('end');
   }
 
+  $scope.followedDetail = function() {
+    $state.go('follow', {
+      from: 'user',
+      type: 'followed',
+      userid: $stateParams.userid
+    });
+  }
+
   $scope.getLength = function(obj) {
     return Object.keys(obj).length;
   }
@@ -289,14 +298,6 @@ angular.module('app.controllers', [])
   $scope.commentsPage = function(postid) {
     $state.go('comments', {
       postid: postid
-    });
-  }
-
-  $scope.followedDetail = function() {
-    $state.go('follow', {
-      from: 'user',
-      type: 'followed',
-      userid: $stateParams.userid
     });
   }
 })
