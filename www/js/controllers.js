@@ -105,43 +105,6 @@ angular.module('app.controllers', [])
     });
   }
 
-  $scope.like = function(key){
-    console.log(key);
-    var postRef = ref.child('posts/' + key);
-    var currentlyId;
-    ref.onAuth(function(authData) {
-      currentlyId = authData.uid;
-    });
-    postRef.once('value', function(snapshot){
-      var like = snapshot.val().like;
-      var flag = false;
-      for(var i = 0; i < like.length; i++){
-        if(like[i] == currentlyId){
-          flag = true;
-          like.splice(i, 1);
-        }
-      }
-      if(flag){
-        postRef.set({
-          userid:snapshot.val().userid ,
-          imagePath: snapshot.val().imagePath,
-          createdAt: snapshot.val().createdAt,
-          context: snapshot.val().context,
-          like: like
-        })
-      }else{
-        like.unshift(currentlyId);
-        postRef.set({
-          userid:snapshot.val().userid ,
-          imagePath: snapshot.val().imagePath,
-          createdAt: snapshot.val().createdAt,
-          context: snapshot.val().context,
-          like: like
-        })
-      }
-    });
-  }
-
   $scope.commentInput = false;
   $scope.showComment = function(){
     if($scope.commentInput){
@@ -526,6 +489,7 @@ var likePhoto = function(key){
           imagePath: snapshot.val().imagePath,
           createdAt: snapshot.val().createdAt,
           context: snapshot.val().context,
+          comment: snapshot.val().comment,
           like: like
         })
       }else{
@@ -536,6 +500,7 @@ var likePhoto = function(key){
           imagePath: snapshot.val().imagePath,
           createdAt: snapshot.val().createdAt,
           context: snapshot.val().context,
+          comment: snapshot.val().comment,
           like: like
         })
       }
