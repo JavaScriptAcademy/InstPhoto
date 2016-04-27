@@ -1,15 +1,21 @@
 <ion-view title="Home" id="page2" style="background-color:#F8CB6C;">
     <ion-content padding="true" scroll="true" class="has-header">
         <div class="searchWarpper">
-            <form class="search" method="post" action="" >
-                <input type="text" name="q" placeholder="Search..." class="ion-search"/>
+            <div class="search" >
+                <input type="text" name="q" placeholder="Search..." class="ion-search" ng-keyup="matchUser($event)" autocomplete="off"/>
                 <ul class="results" >
-                    <li><a href="index.html">Search Result #1<br /><span>Description...</span></a></li>
-                    <li><a href="index.html">Search Result #2<br /><span>Description...</span></a></li>
-                    <li><a href="index.html">Search Result #3<br /><span>Description...</span></a></li>
-                    <li><a href="index.html">Search Result #4</a></li>
+                    <li ng-repeat="user in matchedUsers">
+                        <a ng-click="detail(user.userid)">
+                            <div class="searchedList">
+                                <div class="item-avatar headerImage">
+                                    <img src={{user.photo}} />
+                                </div>
+                                <div class="searchedName"><strong>{{user.username}}</strong></div>
+                            </div>
+                        </a>
+                    </li>
                 </ul>
-            </form>
+            </div>
         </div>
 
         <div class="homePost" ng-repeat="(key, value) in posts">

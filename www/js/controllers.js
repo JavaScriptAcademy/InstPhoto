@@ -92,9 +92,30 @@ angular.module('app.controllers', [])
     }
   };
 
+  $scope.matchedUsers = [];
+  $scope.matchUser = function($event) {
+    let keyWord = $event.target.value;
+    if(keyWord != null && keyWord != ''){
+      let match = new RegExp(keyWord, "i");
+      let matchUsers = [];
+      usersRef.once("value", function(snapshot){
+        let users = snapshot.val();
+        for(var user in users){
+          if(users[user].username.match(match)){
+            users[user].userid = user;
+            matchUsers.push(users[user]);
+          }
+        }
+        $scope.matchedUsers = matchUsers;
+        $scope.$apply();
+      })
+    }else{
+      $scope.matchedUsers = [];
+    }
+  }
+
   $scope.showLike = showLike;
   $scope.like = likePhoto;
-
 })
 
 .controller('userCtrl', function($scope, $stateParams) {
@@ -642,5 +663,4 @@ var likePhoto = function(key){
       }
     });
   }
-
 
