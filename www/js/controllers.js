@@ -79,13 +79,14 @@ angular.module('app.controllers', [])
       });
     }
 
+
     //$scope.$apply();
+
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
 
   $scope.commentsPage = function(postid) {
-    console.log("comment: ", postid);
     $state.go('comments', {
       postid: postid
     });
@@ -110,9 +111,34 @@ angular.module('app.controllers', [])
     }
   };
 
+  $scope.matchedUsers = [];
+  $scope.matchUser = function($event) {
+    let keyWord = $event.target.value;
+    if(keyWord != null && keyWord != ''){
+      let match = new RegExp(keyWord, "i");
+      let matchUsers = [];
+      usersRef.once("value", function(snapshot){
+        let users = snapshot.val();
+        for(var user in users){
+          if(users[user].username.match(match)){
+            users[user].userid = user;
+            matchUsers.push(users[user]);
+          }
+        }
+        $scope.matchedUsers = matchUsers;
+        $scope.$apply();
+      })
+    }else{
+      $scope.matchedUsers = [];
+    }
+  }
+
+  $scope.getLength = function(obj) {
+      return Object.keys(obj).length;
+  }
+
   $scope.showLike = showLike;
   $scope.like = likePhoto;
-
 })
 
 .controller('userCtrl', function($scope, $stateParams, $state) {
@@ -122,15 +148,12 @@ angular.module('app.controllers', [])
   }
   var userRef = usersRef.child($stateParams.userid);
   userRef.on("value", function(snapshot) {
-    console.log('in userRef.on');
-    console.log(snapshot.val());
 
     $scope.userdata.username = snapshot.val().username;
     $scope.userdata.photo = snapshot.val().photo;
     ref.onAuth(function(authData) {
       for(let index = 0; index < snapshot.val().follower.length-1; index++){
         if(snapshot.val().follower[index] === currentlyId){
-          console.log('find it');
           $scope.isfollowed = true;
         }
       }
@@ -214,7 +237,6 @@ angular.module('app.controllers', [])
 
     var userRef = usersRef.child(currentlyId);
     userRef.once("value", function(snapshot) {
-      console.log('in userRef');
       var follower = snapshot.val().follower;
       var email = snapshot.val().email;
       var username = snapshot.val().username;
@@ -243,7 +265,6 @@ angular.module('app.controllers', [])
       var username = snapshot.val().username;
       var photo = snapshot.val().photo;
       var followed = snapshot.val().followed;
-      console.log(snapshot.val());
       for(let index = 0; index < follower.length-1; index++){
         if(follower[index] === currentlyId){
           follower.splice(index, 1);
@@ -264,6 +285,7 @@ angular.module('app.controllers', [])
     console.log('end');
   }
 
+
   $scope.followerDetail = function() {
     $state.go('follow', {
       from: 'user',
@@ -279,6 +301,17 @@ angular.module('app.controllers', [])
       userid: $stateParams.userid
     });
   }
+
+  $scope.getLength = function(obj) {
+    return Object.keys(obj).length;
+  }
+
+  $scope.commentsPage = function(postid) {
+    $state.go('comments', {
+      postid: postid
+
+    });
+  }
 })
 
 
@@ -288,6 +321,16 @@ angular.module('app.controllers', [])
   $scope.goSetting = function() {
     $state.go('setting');
   };
+
+  $scope.getLength = function(obj) {
+    return Object.keys(obj).length;
+  }
+
+  $scope.commentsPage = function(postid) {
+    $state.go('comments', {
+      postid: postid
+    });
+  }
 
   ref.onAuth(function(authData) {
     let currentlyId = authData.uid;
@@ -514,10 +557,8 @@ angular.module('app.controllers', [])
   }
 })
 
-
 .controller('accountSettingCtrl', function($scope, $state) {
   $scope.edit = function() {
-    console.log('in edit');
     ref.onAuth(function(authData) {
       if (authData) {
         console.log("Authenticated with uid:", authData.uid);
@@ -672,7 +713,6 @@ var showLike = function(post) {
 }
 
 var likePhoto = function(key){
-    console.log(key);
     var postRef = ref.child('posts/' + key);
     postRef.once('value', function(snapshot){
       var like = snapshot.val().like;
@@ -717,5 +757,4 @@ var likePhoto = function(key){
       }
     });
   }
-
 
