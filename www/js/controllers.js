@@ -67,7 +67,6 @@ angular.module('app.controllers', [])
   });
 
   $scope.commentsPage = function(postid) {
-    console.log("comment: ", postid);
     $state.go('comments', {
       postid: postid
     });
@@ -114,11 +113,15 @@ angular.module('app.controllers', [])
     }
   }
 
+  $scope.getLength = function(obj) {
+      return Object.keys(obj).length;
+  }
+
   $scope.showLike = showLike;
   $scope.like = likePhoto;
 })
 
-.controller('userCtrl', function($scope, $stateParams) {
+.controller('userCtrl', function($scope, $stateParams, $state) {
   $scope.userdata = {};
   if($stateParams.userid === currentlyId) {
     $scope.isCurUserItself = true;
@@ -266,6 +269,16 @@ angular.module('app.controllers', [])
 
     console.log('end');
   }
+
+  $scope.getLength = function(obj) {
+    return Object.keys(obj).length;
+  }
+
+  $scope.commentsPage = function(postid) {
+    $state.go('comments', {
+      postid: postid
+    });
+  }
 })
 
 
@@ -275,6 +288,16 @@ angular.module('app.controllers', [])
   $scope.goSetting = function() {
     $state.go('setting');
   };
+
+  $scope.getLength = function(obj) {
+    return Object.keys(obj).length;
+  }
+
+  $scope.commentsPage = function(postid) {
+    $state.go('comments', {
+      postid: postid
+    });
+  }
 
   ref.onAuth(function(authData) {
     let currentlyId = authData.uid;
@@ -444,16 +467,6 @@ angular.module('app.controllers', [])
       createdAt:getCurrentDate(),
       context: $scope.comment,
       like: [''],
-      comments: {
-        'commentid1': {
-          userid: '8e96bd33-9fed-4128-a43b-5ea4cf07ed64',
-          content: 'first com'
-        },
-        'commentid2': {
-          userid: 'b328a4e7-4b77-4959-b834-6fb6c3620102',
-          content: 'second com'
-        }
-      }
     });
     $state.go('tabsController.home');
   }
