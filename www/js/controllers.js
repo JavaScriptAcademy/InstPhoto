@@ -16,52 +16,64 @@ angular.module('app.controllers', [])
 .controller('homeCtrl', function($scope, $state, $window) {
   //$scope.posts = [];
   postsRef.on("value", function(snapshot) {
-      $scope.moment = moment;
-      var posts = snapshot.val();
-      var newPosts = {};
-
-      reverseForIn(posts, function(key){
-       newPosts[key] = this[key];
+    $scope.moment = moment;
+    let posts = {};
+    for(let key in snapshot.val()){
+      let userRef = usersRef.child(currentlyId);
+      userRef.on('value', function(userSnapshot) {
+        $scope.noposts = true;
+        let postUserid = snapshot.val()[key].userid;
+        for(let index = 0; index < userSnapshot.val().followed.length; index++){
+          if(userSnapshot.val().followed[index] === postUserid) {
+            posts[key] = snapshot.val()[key];
+            $scope.noposts = true;
+          }
+        }
       });
+    }
+    var newPosts = {};
+    reverseForIn(posts, function(key){
+     newPosts[key] = this[key];
+    });
 
-      for(let key in newPosts){
-        var userRef = usersRef.child(newPosts[key].userid);
-        userRef.on('value', function(snapshot) {
-          newPosts[key].username = snapshot.val().username;
-          newPosts[key].photo = snapshot.val().photo;
-          // console.log($scope.posts);
-          $scope.posts = newPosts;
-          for(var post in $scope.posts){
-            for(var i = 0; i < $scope.posts[post].like.length; i++){
-              if($scope.posts[post].like[i] == currentlyId){
-                $scope.posts[post].islike = true;
-              }
-            }
-            if($scope.posts[post].comment){
-              let comment = $scope.posts[post].comment;
-              let lastComment = comment[Object.keys(comment)[Object.keys(comment).length - 1]];
-              var userRef = usersRef.child(lastComment.userId)
-              userRef.once("value", function(snapshot){
-                $scope.posts[post].lastcommentUser = snapshot.val().username;
-              })
-              $scope.posts[post].lastcommentContent = lastComment.content;
-              if(Object.keys(comment).length > 1){
-                let sLastComment = comment[Object.keys(comment)[Object.keys(comment).length - 2]];
-                var userRef = usersRef.child(sLastComment.userId)
-                userRef.once("value", function(snapshot){
-                  $scope.posts[post].sLastcommentUser = snapshot.val().username;
-                })
-                $scope.posts[post].sLastcommentContent = sLastComment.content;
-              }
+    for(let key in newPosts){
+      var userRef = usersRef.child(newPosts[key].userid);
+      userRef.on('value', function(snapshot) {
+        newPosts[key].username = snapshot.val().username;
+        newPosts[key].photo = snapshot.val().photo;
+        // console.log($scope.posts);
+        $scope.posts = newPosts;
+        for(var post in $scope.posts){
+          for(var i = 0; i < $scope.posts[post].like.length; i++){
+            if($scope.posts[post].like[i] == currentlyId){
+              $scope.posts[post].islike = true;
             }
           }
+          if($scope.posts[post].comment){
+            let comment = $scope.posts[post].comment;
+            let lastComment = comment[Object.keys(comment)[Object.keys(comment).length - 1]];
+            var userRef = usersRef.child(lastComment.userId)
+            userRef.once("value", function(snapshot){
+              $scope.posts[post].lastcommentUser = snapshot.val().username;
+            })
+            $scope.posts[post].lastcommentContent = lastComment.content;
+            if(Object.keys(comment).length > 1){
+              let sLastComment = comment[Object.keys(comment)[Object.keys(comment).length - 2]];
+              var userRef = usersRef.child(sLastComment.userId)
+              userRef.once("value", function(snapshot){
+                $scope.posts[post].sLastcommentUser = snapshot.val().username;
+              })
+              $scope.posts[post].sLastcommentContent = sLastComment.content;
+            }
+          }
+        }
 
-        }, function(errorObject) {
-          console.log("The read failed: " + errorObject.code);
-        });
-      }
+      }, function(errorObject) {
+        console.log("The read failed: " + errorObject.code);
+      });
+    }
 
-      $scope.$apply();
+    $scope.$apply();
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
