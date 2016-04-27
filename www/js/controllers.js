@@ -1,6 +1,7 @@
 'use strict';
 var ref = new Firebase("https://glaring-fire-2965.firebaseio.com");
 
+
 var postsRef = ref.child('posts');
 var usersRef = ref.child("users");
 
@@ -9,35 +10,7 @@ ref.onAuth(function(authData) {
   if(authData){
     currentlyId = authData.uid;
   }
-
 });
-
-function getCurrentDate() {
-  var date  = new Date().getTime();
-  return date;
-}
-
-function getDateString(date) {
-    var month = date.getUTCMonth() + 1; //months from 1-12
-    var day = date.getUTCDate();
-    var year = date.getUTCFullYear();
-    var hour = date.getHours(); // => 9
-    var minute = date.getMinutes(); // =>  30
-    var newDate = year + "/" + month + "/" + day + "   ";
-    var newTime = hour + ":" + minute ;
-    return newDate + newTime;
-}
-
-function reverseForIn(obj, f) {
-  var arr = [];
-  for (var key in obj) {
-    // add hasOwnPropertyCheck if needed
-    arr.push(key);
-  }
-  for (var i=arr.length-1; i>=0; i--) {
-    f.call(obj, arr[i]);
-  }
-}
 
 angular.module('app.controllers', [])
 .controller('homeCtrl', function($scope, $state, $window) {
@@ -56,6 +29,7 @@ angular.module('app.controllers', [])
         userRef.on('value', function(snapshot) {
           newPosts[key].username = snapshot.val().username;
           newPosts[key].photo = snapshot.val().photo;
+          // console.log($scope.posts);
           $scope.posts = newPosts;
           for(var post in $scope.posts){
             for(var i = 0; i < $scope.posts[post].like.length; i++){
@@ -63,15 +37,41 @@ angular.module('app.controllers', [])
                 $scope.posts[post].islike = true;
               }
             }
+            if($scope.posts[post].comment){
+              let comment = $scope.posts[post].comment;
+              let lastComment = comment[Object.keys(comment)[Object.keys(comment).length - 1]];
+              var userRef = usersRef.child(lastComment.userId)
+              userRef.once("value", function(snapshot){
+                $scope.posts[post].lastcommentUser = snapshot.val().username;
+              })
+              $scope.posts[post].lastcommentContent = lastComment.content;
+              if(Object.keys(comment).length > 1){
+                let sLastComment = comment[Object.keys(comment)[Object.keys(comment).length - 2]];
+                var userRef = usersRef.child(sLastComment.userId)
+                userRef.once("value", function(snapshot){
+                  $scope.posts[post].sLastcommentUser = snapshot.val().username;
+                })
+                $scope.posts[post].sLastcommentContent = sLastComment.content;
+              }
+            }
           }
+
         }, function(errorObject) {
           console.log("The read failed: " + errorObject.code);
         });
       }
+
       $scope.$apply();
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
+
+  $scope.commentsPage = function(postid) {
+    console.log("comment: ", postid);
+    $state.go('comments', {
+      postid: postid
+    });
+  }
 
   $scope.detail = function(userid) {
     $state.go('user', {
@@ -79,17 +79,47 @@ angular.module('app.controllers', [])
     });
   }
 
+  $scope.submitComment = function($event, key){
+    if($event.keyCode == 13){
+      var content = $event.target.value;
+      var postRef = postsRef.child(key);
+      postRef.child('comment').push().set({
+        userId: currentlyId,
+        content: content
+      })
+      $event.target.value = '';
+      // $scope.commentInput = false;
+    }
+  };
+
   $scope.showLike = showLike;
   $scope.like = likePhoto;
+
 })
 
 .controller('userCtrl', function($scope, $stateParams) {
   $scope.userdata = {};
-
+  if($stateParams.userid === currentlyId) {
+    $scope.isCurUserItself = true;
+  }
   var userRef = usersRef.child($stateParams.userid);
   userRef.on("value", function(snapshot) {
+    console.log('in userRef.on');
+    console.log(snapshot.val());
+
     $scope.userdata.username = snapshot.val().username;
     $scope.userdata.photo = snapshot.val().photo;
+    ref.onAuth(function(authData) {
+      for(let index = 0; index < snapshot.val().follower.length-1; index++){
+        if(snapshot.val().follower[index] === currentlyId){
+          console.log('find it');
+          $scope.isfollowed = true;
+        }
+      }
+    });
+    $scope.userdata.follower = snapshot.val().follower.length-1;
+    $scope.userdata.followed = snapshot.val().followed.length-1;
+
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
@@ -109,7 +139,6 @@ angular.module('app.controllers', [])
     var postsNum = 0;
     for(let post in $scope.userdata.posts){
       postsNum++;
-      console.log(postsNum);
       for(let i = 0; i < $scope.userdata.posts[post].like.length; i++){
         if($scope.userdata.posts[post].like[i] === currentlyId){
           $scope.userdata.posts[post].islike = true;
@@ -123,6 +152,99 @@ angular.module('app.controllers', [])
 
   $scope.showLike = showLike;
   $scope.like = likePhoto;
+  $scope.follow = function() {
+    console.log('follow func');
+    var userToBeFollowedRef = usersRef.child($stateParams.userid);
+    userToBeFollowedRef.once("value", function(snapshot) {
+      var follower = snapshot.val().follower;
+      var email = snapshot.val().email;
+      var username = snapshot.val().username;
+      var photo = snapshot.val().photo;
+      var followed = snapshot.val().followed;
+      follower.unshift(currentlyId);
+      userToBeFollowedRef.set({
+        username: username,
+        email: email,
+        photo: photo,
+        follower: follower,
+        followed: followed
+      });
+    });
+
+    var userRef = usersRef.child(currentlyId);
+    userRef.once("value", function(snapshot) {
+      var follower = snapshot.val().follower;
+      var email = snapshot.val().email;
+      var username = snapshot.val().username;
+      var photo = snapshot.val().photo;
+      var followed = snapshot.val().followed;
+      followed.unshift($stateParams.userid);
+      userRef.set({
+        username: username,
+        email: email,
+        photo: photo,
+        follower: follower,
+        followed: followed
+      });
+    });
+    $scope.isfollowed = true;
+    console.log('end');
+  }
+
+  $scope.unfollow = function() {
+    console.log('unfollow func');
+
+    var userRef = usersRef.child(currentlyId);
+    userRef.once("value", function(snapshot) {
+      console.log('in userRef');
+      var follower = snapshot.val().follower;
+      var email = snapshot.val().email;
+      var username = snapshot.val().username;
+      var photo = snapshot.val().photo;
+      var followed = snapshot.val().followed;
+      for(let index = 0; index < followed.length-1; index++){
+        if(followed[index] === $stateParams.userid){
+          followed.splice(index, 1);
+          console.log('remove in followed');
+        }
+      }
+      userRef.set({
+        username: username,
+        email: email,
+        photo: photo,
+        follower: follower,
+        followed: followed
+      });
+    });
+
+
+    var userToBeFollowedRef = usersRef.child($stateParams.userid);
+    userToBeFollowedRef.once("value", function(snapshot) {
+      var follower = snapshot.val().follower;
+      var email = snapshot.val().email;
+      var username = snapshot.val().username;
+      var photo = snapshot.val().photo;
+      var followed = snapshot.val().followed;
+      console.log(snapshot.val());
+      for(let index = 0; index < follower.length-1; index++){
+        if(follower[index] === currentlyId){
+          follower.splice(index, 1);
+          console.log('remove in follower');
+        }
+      }
+
+      userToBeFollowedRef.set({
+        username: username,
+        email: email,
+        photo: photo,
+        follower: follower,
+        followed: followed
+      });
+    });
+    $scope.isfollowed = false;
+
+    console.log('end');
+  }
 })
 
 .controller('currentlyUserCtrl', function($scope, $state) {
@@ -139,6 +261,8 @@ angular.module('app.controllers', [])
     userRef.on("value", function(snapshot) {
       $scope.userdata.username = snapshot.val().username;
       $scope.userdata.photo = snapshot.val().photo;
+      $scope.userdata.follower = snapshot.val().follower.length-1;
+      $scope.userdata.followed = snapshot.val().followed.length-1;
 
     }, function (errorObject) {
       console.log("The read failed: " + errorObject.code);
@@ -166,7 +290,7 @@ angular.module('app.controllers', [])
       }
       $scope.userdata.postsNum = postsNum;
     }, function (errorObject) {
-    console.log("The read failed: " + errorObject.code);
+      console.log("The read failed: " + errorObject.code);
     });
   });
 
@@ -196,10 +320,14 @@ angular.module('app.controllers', [])
         console.log("Successfully created user account with uid:", userData.uid);
         var username = $scope.signupForm.username;
         var email = $scope.signupForm.email;
+        var follower = [''];
+        var followed = [''];
         usersRef.child(userData.uid).set({
           username: username,
           email: email,
-          photo: 'http://www.npg.si.edu/exhibit/feature/images/schoeller_full.jpg'
+          follower: follower,
+          followed: followed,
+          photo: 'http://t-1.tuzhan.com/42671170e37a/c-1/l/2012/09/21/15/2729ba416b0c495f9c847895388ab11c.jpg'
         });
 
         $ionicLoading.hide();
@@ -287,7 +415,6 @@ angular.module('app.controllers', [])
     //     });
   }
 
-
   $scope.submit = function(imageURI) {
     console.log("submit");
     postsRef.push().set({
@@ -295,15 +422,59 @@ angular.module('app.controllers', [])
       imagePath: imageURI,
       createdAt:getCurrentDate(),
       context: $scope.comment,
-      like: ['']
+      like: [''],
+      comments: {
+        'commentid1': {
+          userid: '8e96bd33-9fed-4128-a43b-5ea4cf07ed64',
+          content: 'first com'
+        },
+        'commentid2': {
+          userid: 'b328a4e7-4b77-4959-b834-6fb6c3620102',
+          content: 'second com'
+        }
+      }
     });
+    $scope.imgURI=undefined;
+    $scope.comment="";
     $state.go('tabsController.home');
   }
 
+
   $scope.cancle = function(imageURI) {
     console.log("cancle");
+    $scope.imgURI=undefined;
+    $scope.comment="";
     $state.go('tabsController.home');
+
   }
+
+  $scope.surprise = function(imageURI) {
+    console.log("surprise");
+    console.log(randomEffect());
+    postsRef.push().set({
+      userid: currentlyId,
+      imagePath: imageURI,
+      createdAt:getCurrentDate(),
+      context: $scope.comment,
+      imageEffect:randomEffect(),
+      like: [''],
+      comments: {
+        'commentid1': {
+          userid: '8e96bd33-9fed-4128-a43b-5ea4cf07ed64',
+          content: 'first com'
+        },
+        'commentid2': {
+          userid: 'b328a4e7-4b77-4959-b834-6fb6c3620102',
+          content: 'second com'
+        }
+      }
+    });
+    $scope.imgURI=undefined;
+    $scope.comment="";
+    $state.go('tabsController.home');
+
+  }
+
 })
 
 .controller('accountSettingCtrl', function($scope, $state) {
@@ -372,28 +543,93 @@ angular.module('app.controllers', [])
         var userRef = usersRef.child(authData.uid);
         var username;
         var email;
+        var follower;
+        var followed;
         userRef.on('value', function(snapshot) {
           username = snapshot.val().username;
           email = snapshot.val().email;
+          followed = snapshot.val().followed;
+          follower = snapshot.val().follower;
         }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
         });
         userRef.set({
           email: email,
           photo: imageURI,
-          username: username
+          username: username,
+          follower: follower,
+          followed: followed
         });
         $state.go('tabsController.currentlyUser');
       }, function(err) {
           console.log(err);
       });
+      $state.go('tabsController.currentlyUser');
     }
 
     $scope.cancle = function() {
-    $state.go('tabsController.home');
-
+      $state.go('tabsController.home');
     }
+
 })
+
+.controller('commentsCtrl', function($scope, $stateParams, $state) {
+  let postid = $stateParams.postid;
+  let postRef = postsRef.child(postid);
+  postRef.on('value', function(postSnapshot) {
+    let commentTemp = postSnapshot.val().comment;
+    for(let key in commentTemp){
+      let userRef = usersRef.child(commentTemp[key].userId);
+      userRef.once('value', function(userSnapshot) {
+        commentTemp[key].username = userSnapshot.val().username;
+        commentTemp[key].photo = userSnapshot.val().photo;
+      });
+    }
+
+    let comments = {};
+    reverseForIn(commentTemp, function(key){
+      comments[key] = this[key];
+    });
+
+    $scope.comments = comments;
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
+
+  $scope.detail = function(userid) {
+    $state.go('user', {
+      userid: userid
+    });
+  }
+
+})
+
+function getCurrentDate() {
+  var date  = new Date().getTime();
+  return date;
+}
+
+function getDateString(date) {
+    var month = date.getUTCMonth() + 1; //months from 1-12
+    var day = date.getUTCDate();
+    var year = date.getUTCFullYear();
+    var hour = date.getHours(); // => 9
+    var minute = date.getMinutes(); // =>  30
+    var newDate = year + "/" + month + "/" + day + "   ";
+    var newTime = hour + ":" + minute ;
+    return newDate + newTime;
+}
+
+function reverseForIn(obj, f) {
+  var arr = [];
+  for (var key in obj) {
+    // add hasOwnPropertyCheck if needed
+    arr.push(key);
+  }
+  for (var i=arr.length-1; i>=0; i--) {
+    f.call(obj, arr[i]);
+  }
+}
 
 var showLike = function(post) {
   return post.like.length !== 1;
@@ -418,7 +654,8 @@ var likePhoto = function(key){
           imagePath: snapshot.val().imagePath,
           createdAt: snapshot.val().createdAt,
           context: snapshot.val().context,
-          like: like
+          like: like,
+          //comment: snapshot.val().comment
         })
       }else{
         like.unshift(currentlyId);
@@ -428,10 +665,25 @@ var likePhoto = function(key){
           imagePath: snapshot.val().imagePath,
           createdAt: snapshot.val().createdAt,
           context: snapshot.val().context,
+          //comment: snapshot.val().comment,
           like: like
+        })
+      }
+      if(snapshot.val().comment){
+        postRef.set({
+          userid:snapshot.val().userid ,
+          imagePath: snapshot.val().imagePath,
+          createdAt: snapshot.val().createdAt,
+          context: snapshot.val().context,
+          like: like,
+          comment: snapshot.val().comment,
         })
       }
     });
   }
 
-
+var randomEffect = function() {
+ var effectArray = ["blend-blue", "blend-blue-dark","blend-blue-light","blend-orange","blend-orange-dark","blend-orange-light","blend-red","blend-red-dark","blend-red-light","blend-green","blend-green-dark","blend-green-light","blend-yellow","blend-yellow-dark","blend-yellow-light","blend-purple","blend-purple-dark","blend-purple-light","blend-pink","blend-pink-dark","blend-pink-light","blend-blue-yellow","blend-blue-yellow-dark","blend-blue-yellow-light","blend-pink-yellow","blend-pink-yellow-dark","blend-pink-yellow-light","blend-red-blue","blend-red-blue-dark","blend-red-blue-light"];
+ var randomNum = parseInt((Math.random() * (effectArray.length- 0)), 10);
+ return effectArray[randomNum];
+}

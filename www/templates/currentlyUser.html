@@ -14,12 +14,12 @@
                 <strong>posts</strong>
             </div>
             <div class="posts">
-                <strong>X</strong><br>
-                <strong>followed</strong>
+                <strong>{{userdata.follower}}</strong><br>
+                <strong>follower</strong>
             </div>
             <div class="posts">
-                <strong>X</strong><br>
-                <strong>follower</strong>
+                <strong>{{userdata.followed}}</strong><br>
+                <strong>followed</strong>
             </div>
         </div>
 
@@ -40,7 +40,6 @@
                     <div ng-if='showLike(value)' style="display: inline-block;">
                         {{value.like.length-1}}
                     </div>
-                    <span class="ion-ios-chatbubble-outline"></span>
                 </div>
                 <div class="newlyComment">
 ​

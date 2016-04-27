@@ -4,7 +4,7 @@
           </button></a>
           <h1 class="title">{{userdata.username}}</h1>
         </ion-header-bar>
-    <ion-content  scroll="true" class="has-header">
+    <ion-content  padding="true" scroll="true" class="has-header">
         <div class="postHeader">
             <div class="item-avatar headerImage">
                 <img src={{userdata.photo}} />
@@ -14,12 +14,16 @@
                 <strong>posts</strong>
             </div>
             <div class="posts">
-                <strong>X</strong><br>
-                <strong>followed</strong>
+                <strong>{{userdata.follower}}</strong><br>
+                <strong>follower</strong>
             </div>
             <div class="posts">
-                <strong>X</strong><br>
-                <strong>follower</strong>
+                <strong>{{userdata.followed}}</strong><br>
+                <strong>followed</strong>
+            </div>
+            <div class="follow" ng-hide='isCurUserItself'>
+                <button class="button button-block button-balanced" ng-show='isfollowed' ng-click='unfollow()'>Followed!</button>
+                <button class="button button-block button-calm" ng-hide='isfollowed' ng-click='follow()'>Follow</button>
             </div>
         </div>
 
@@ -38,7 +42,6 @@
                     <div ng-if='showLike(value)' style="display: inline-block;">
                         {{value.like.length-1}}
                     </div>
-                    <span class="ion-ios-chatbubble-outline"></span>
                 </div>
                 <div class="newlyComment">
 

@@ -219,7 +219,23 @@ input {
 }
 
 .newlyComment {
+    padding-left: 10px;
+}
 
+.newlyComment span {
+    font-style: italic;
+    font-weight: bold;
+    color: #1CC1EF;
+}
+
+.seeMore {
+    color: gray;
+    font-style: italic;
+}
+
+.commentNow {
+    width: 100%;
+    padding-left: 10px;
 }
 
 .topbar {
@@ -232,5 +248,30 @@ input {
     margin-top: 18px;
     margin-left: 35px;
     text-align: center;
+}
+
+
+.follow {
+    margin-right: 20px;
+    margin-left: 20px;
+}
+
+.commentBody {
+    width: 100%;
+    position: relative;
+    border-top: 1px solid #E2FFF3;
+}
+
+.commentContext {
+    width: 70%;
+    margin-top: 8px;
+    vertical-align: top;
+    display: inline-block;
+}
+
+.commentUser {
+    font-style: italic;
+    font-weight: bold;
+    color: #1CC1EF;
 }
 
