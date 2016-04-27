@@ -1,6 +1,6 @@
 'use strict';
 
-var ref = new Firebase("https://sweltering-heat-3844.firebaseio.com");
+var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
 
 var postsRef = ref.child('posts');
 var usersRef = ref.child("users");
