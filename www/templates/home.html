@@ -18,6 +18,10 @@
             </div>
         </div>
 
+        <div ng-hide='getLength(posts)'>
+            <div class="noPost">you didn't follow others.<br> Go to search and follow them!</div>
+        </div>
+
         <div class="homePost" ng-repeat="(key, value) in posts">
             <div class="postHeader">
                 <div class="item-avatar headerImage" ng-click="detail(value.userid)">
@@ -45,7 +49,7 @@
 
                     <span class="ion-ios-chatbubble-outline"></span>
                     <!-- <span></span> -->
-                    <div ng-show='value.comment' style="display: inline-block;">
+                    <div ng-if='value.comment' style="display: inline-block;">
                         {{getLength(value.comment)}}
                     </div>
                 </div>

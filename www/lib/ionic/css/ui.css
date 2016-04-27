@@ -287,3 +287,12 @@ input {
     color: #1CC1EF;
 }
 
+.noPost {
+    vertical-align: center;
+    text-align: center;
+    margin-top: 30%;
+    font-family: "Arial Black","Arial Bold",Gadget,sans-serif;
+    font-size: 30px;
+    line-height: 200%;
+    color: #CDD8F2;
+}

@@ -41,7 +41,7 @@
 
                     <span class="ion-ios-chatbubble-outline" ng-click="commentsPage(key)"></span>
                     <!-- <span></span> -->
-                    <div ng-show='value.comment' style="display: inline-block;">
+                    <div ng-if='value.comment' style="display: inline-block;">
                         {{getLength(value.comment)}}
                     </div>
                 </div>

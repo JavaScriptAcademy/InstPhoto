@@ -1,6 +1,6 @@
 'use strict';
 
-var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
+var ref = new Firebase("https://sweltering-heat-3844.firebaseio.com");
 
 var postsRef = ref.child('posts');
 var usersRef = ref.child("users");
@@ -61,7 +61,7 @@ angular.module('app.controllers', [])
         });
       }
 
-      $scope.$apply();
+      // $scope.$apply();
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
@@ -128,15 +128,12 @@ angular.module('app.controllers', [])
   }
   var userRef = usersRef.child($stateParams.userid);
   userRef.on("value", function(snapshot) {
-    console.log('in userRef.on');
-    console.log(snapshot.val());
 
     $scope.userdata.username = snapshot.val().username;
     $scope.userdata.photo = snapshot.val().photo;
     ref.onAuth(function(authData) {
       for(let index = 0; index < snapshot.val().follower.length-1; index++){
         if(snapshot.val().follower[index] === currentlyId){
-          console.log('find it');
           $scope.isfollowed = true;
         }
       }
@@ -220,7 +217,6 @@ angular.module('app.controllers', [])
 
     var userRef = usersRef.child(currentlyId);
     userRef.once("value", function(snapshot) {
-      console.log('in userRef');
       var follower = snapshot.val().follower;
       var email = snapshot.val().email;
       var username = snapshot.val().username;
@@ -249,7 +245,6 @@ angular.module('app.controllers', [])
       var username = snapshot.val().username;
       var photo = snapshot.val().photo;
       var followed = snapshot.val().followed;
-      console.log(snapshot.val());
       for(let index = 0; index < follower.length-1; index++){
         if(follower[index] === currentlyId){
           follower.splice(index, 1);
@@ -473,10 +468,8 @@ angular.module('app.controllers', [])
 
 })
 
-
 .controller('accountSettingCtrl', function($scope, $state) {
   $scope.edit = function() {
-    console.log('in edit');
     ref.onAuth(function(authData) {
       if (authData) {
         console.log("Authenticated with uid:", authData.uid);
@@ -631,7 +624,6 @@ var showLike = function(post) {
 }
 
 var likePhoto = function(key){
-    console.log(key);
     var postRef = ref.child('posts/' + key);
     postRef.once('value', function(snapshot){
       var like = snapshot.val().like;
