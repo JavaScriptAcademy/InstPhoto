@@ -1,16 +1,16 @@
 <ion-view title="Currently User" id="page4" style="background-color:#F8CB6C;" hide-nav-bar="true">
         <ion-header-bar class="top">
-          <h1 class="title">{{myData.username}}</h1>
+          <h1 class="title">{{userdata.username}}</h1>
           <button class="button button-icon ion-gear-b" ng-click="goSetting()">
           </button>
         </ion-header-bar>
     <ion-content padding="true" scroll="true" class="has-header">
         <div class="postHeader">
             <div class="item-avatar headerImage">
-                <img src={{myData.photo}} />
+                <img src={{userdata.photo}} />
             </div>
             <div class="posts">
-                <strong>{{myData.postsNum}}</strong><br>
+                <strong>{{userdata.postsNum}}</strong><br>
                 <strong>posts</strong>
             </div>
             <div class="posts">
@@ -22,8 +22,10 @@
                 <strong>follower</strong>
             </div>
         </div>
+
 ​
-        <div class="homePost postHeader" ng-repeat="(key, value) in myData.posts" >
+
+        <div class="homePost postHeader" ng-repeat="(key, value) in userdata.posts" >
             <div class="postDesc">
                 <p>{{value.context}}</p>
             </div>
