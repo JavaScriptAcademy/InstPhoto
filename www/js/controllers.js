@@ -105,14 +105,14 @@ angular.module('app.controllers', [])
     });
   }
 
-  $scope.commentInput = false;
-  $scope.showComment = function(){
-    if($scope.commentInput){
-      $scope.commentInput = false;
-    }else{
-      $scope.commentInput = true;
-    }
-  };
+  // $scope.commentInput = false;
+  // $scope.showComment = function(){
+    // if($scope.commentInput.postid){
+    //   $scope.commentInput.postid = false;
+    // }else{
+    //   $scope.commentInput.postid = true;
+    // }
+  // };
 
   $scope.submitComment = function($event, key){
     if($event.keyCode == 13){
@@ -123,7 +123,7 @@ angular.module('app.controllers', [])
         content: content
       })
       $event.target.value = '';
-      $scope.commentInput = false;
+      // $scope.commentInput = false;
     }
   };
 
@@ -489,7 +489,6 @@ var likePhoto = function(key){
           imagePath: snapshot.val().imagePath,
           createdAt: snapshot.val().createdAt,
           context: snapshot.val().context,
-          comment: snapshot.val().comment,
           like: like
         })
       }else{
@@ -500,8 +499,17 @@ var likePhoto = function(key){
           imagePath: snapshot.val().imagePath,
           createdAt: snapshot.val().createdAt,
           context: snapshot.val().context,
-          comment: snapshot.val().comment,
           like: like
+        })
+      }
+      if(snapshot.val().comment){
+        postRef.set({
+          userid:snapshot.val().userid ,
+          imagePath: snapshot.val().imagePath,
+          createdAt: snapshot.val().createdAt,
+          context: snapshot.val().context,
+          like: like,
+          comment: snapshot.val().comment,
         })
       }
     });
