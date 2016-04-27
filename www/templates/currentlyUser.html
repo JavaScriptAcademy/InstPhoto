@@ -14,19 +14,22 @@
                 <strong>posts</strong>
             </div>
             <div class="posts">
-                <strong>{{userdata.follower}}</strong><br>
+                <strong ng-click='followerDetail()'>{{userdata.follower}}</strong><br>
                 <strong>follower</strong>
             </div>
             <div class="posts">
-                <strong>{{userdata.followed}}</strong><br>
+                <strong ng-click='followedDetail()'>{{userdata.followed}}</strong><br>
                 <strong>followed</strong>
             </div>
         </div>
 
         <div class="homePost postHeader" ng-repeat="(key, value) in userdata.posts" >
             <div class="postDesc">
-                <p>{{value.context}}</p>
+                <p class="postTitle">{{value.context}}</p>
+                <button class="button button-icon ion-close-circled deleteButton" ng-click="delete(key)" >
+                </button>
             </div>
+
             <div class="postImage">
                 <img src="{{value.imagePath}}" />
             </div>

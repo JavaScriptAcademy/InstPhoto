@@ -1,0 +1,18 @@
+<ion-view title="Follow" style="background-color:#F8CB6C;">
+
+    <ion-content padding="true" scroll="true" class="has-header">
+        <button class="button button-icon ion-ios-arrow-back" ng-click='back()'>
+          </button>
+        <div class="comments" ng-repeat="(key, value) in follow">
+            <div class="commentBody">
+                <div class="item-avatar headerImage" ng-click="detail(key)">
+                    <img src={{value.photo}} />
+                </div>
+                <div class="commentContext">
+                    <p class="commentUser">{{value.username}}</p>
+                </div>
+            </div>
+
+        </div>
+    </ion-content>
+</ion-view>

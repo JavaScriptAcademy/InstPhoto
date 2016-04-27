@@ -296,3 +296,17 @@ input {
     line-height: 200%;
     color: #CDD8F2;
 }
+
+.deleteButton {
+    float: right;
+    line-height: 30px;
+    min-height: 30px;
+}
+
+.postTitle {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0;
+    line-height: 30px;
+    padding-left: 10px;
+}

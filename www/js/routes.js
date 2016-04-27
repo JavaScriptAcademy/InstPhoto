@@ -82,6 +82,16 @@ angular.module('app.routes', [])
     templateUrl: 'templates/editPost.html',
     controller: 'editPostCtrl'
   })
+  .state('follow', {
+    url: '/follow',
+    templateUrl: 'templates/follow.html',
+    controller: 'followCtrl',
+    params: {
+      from: null,
+      userid: null,
+      type: null
+    }
+  })
 
   .state('comments', {
      url: '/comments',
