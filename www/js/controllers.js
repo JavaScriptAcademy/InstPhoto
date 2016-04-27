@@ -79,7 +79,7 @@ angular.module('app.controllers', [])
       });
     }
 
-    $scope.$apply();
+    //$scope.$apply();
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
@@ -115,7 +115,7 @@ angular.module('app.controllers', [])
 
 })
 
-.controller('userCtrl', function($scope, $stateParams) {
+.controller('userCtrl', function($scope, $stateParams, $state) {
   $scope.userdata = {};
   if($stateParams.userid === currentlyId) {
     $scope.isCurUserItself = true;
@@ -263,6 +263,22 @@ angular.module('app.controllers', [])
 
     console.log('end');
   }
+
+  $scope.followerDetail = function() {
+    $state.go('follow', {
+      from: 'user',
+      type: 'follower',
+      userid: $stateParams.userid
+    });
+  }
+
+  $scope.followedDetail = function() {
+    $state.go('follow', {
+      from: 'user',
+      type: 'followed',
+      userid: $stateParams.userid
+    });
+  }
 })
 
 
@@ -320,6 +336,21 @@ angular.module('app.controllers', [])
     postRef.set(null);
   }
 
+  $scope.followerDetail = function() {
+    $state.go('follow', {
+      from: 'curUser',
+      type: 'follower',
+      userid: currentlyId
+    });
+  }
+
+  $scope.followedDetail = function() {
+    $state.go('follow', {
+      from: 'curUser',
+      type: 'followed',
+      userid: currentlyId
+    });
+  }
 })
 
 .controller('signupCtrl', function($scope, $state, $ionicLoading) {
@@ -400,6 +431,37 @@ angular.module('app.controllers', [])
 .controller('editPostCtrl', function($scope) {
 })
 
+.controller('followCtrl', function($scope, $stateParams, $state) {
+  let follow = {};
+  let userRef = usersRef.child($stateParams.userid);
+  userRef.on('value', function(snapshot) {
+    for(let index = 0; index < snapshot.val()[$stateParams.type].length-1; index++) {
+      let followUserRef = usersRef.child(snapshot.val()[$stateParams.type][index]);
+      followUserRef.on('value', function(childsnapshot) {
+        follow[snapshot.val()[$stateParams.type][index]] = childsnapshot.val();
+        $scope.follow = follow;
+        $scope.$apply();
+      });
+    }
+  });
+
+  $scope.detail = function(userid) {
+    $state.go('user', {
+      userid: userid
+    });
+  }
+
+  $scope.back = function() {
+    if($stateParams.from === 'user'){
+      $state.go('user', {
+        userid: $stateParams.userid
+      });
+    } else {
+      $state.go('tabsController.currentlyUser');
+    }
+  }
+})
+
 .controller("cameraController", function ($scope, $cordovaCamera, $state) {
   $scope.takePhoto  = function () {
     $scope.imgURI = 'http://media02.hongkiat.com/ww-flower-wallpapers/roundflower.jpg';
@@ -446,21 +508,10 @@ angular.module('app.controllers', [])
       imagePath: imageURI,
       createdAt:getCurrentDate(),
       context: $scope.comment,
-      like: [''],
-      comments: {
-        'commentid1': {
-          userid: '8e96bd33-9fed-4128-a43b-5ea4cf07ed64',
-          content: 'first com'
-        },
-        'commentid2': {
-          userid: 'b328a4e7-4b77-4959-b834-6fb6c3620102',
-          content: 'second com'
-        }
-      }
+      like: ['']
     });
     $state.go('tabsController.home');
   }
-
 })
 
 
