@@ -15,18 +15,24 @@ ref.onAuth(function(authData) {
 angular.module('app.controllers', [])
 .controller('homeCtrl', function($scope, $state, $window) {
   //$scope.posts = [];
+  $scope.noposts = true;
   postsRef.on("value", function(snapshot) {
     $scope.moment = moment;
     let posts = {};
     for(let key in snapshot.val()){
       let userRef = usersRef.child(currentlyId);
       userRef.on('value', function(userSnapshot) {
-        $scope.noposts = true;
         let postUserid = snapshot.val()[key].userid;
+        // if(currentlyId === postUserid) {
+        //   posts[key] = snapshot.val()[key];
+        //   $scope.noposts = false;
+
+        // }
         for(let index = 0; index < userSnapshot.val().followed.length; index++){
-          if(userSnapshot.val().followed[index] === postUserid) {
+          if(userSnapshot.val().followed[index] === postUserid ||
+            currentlyId === postUserid) {
             posts[key] = snapshot.val()[key];
-            $scope.noposts = true;
+            $scope.noposts = false;
           }
         }
       });
