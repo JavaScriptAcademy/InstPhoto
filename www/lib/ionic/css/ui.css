@@ -287,12 +287,23 @@ input {
     color: #1CC1EF;
 }
 
+.noPost {
+    vertical-align: center;
+    text-align: center;
+    margin-top: 30%;
+    font-family: "Arial Black","Arial Bold",Gadget,sans-serif;
+    font-size: 30px;
+    line-height: 200%;
+    color: #CDD8F2;
+}
+
 .followUser {
     font-style: italic;
     font-weight: bold;
     color: #1CC1EF;
     margin-top: 17px;
 }
+
 
 
 .deleteButton {
@@ -307,17 +318,5 @@ input {
     margin: 0;
     line-height: 30px;
     padding-left: 10px;
-}
-
-
-
-.noPost {
-    vertical-align: center;
-    text-align: center;
-    margin-top: 30%;
-    font-family: "Arial Black","Arial Bold",Gadget,sans-serif;
-    font-size: 30px;
-    line-height: 200%;
-    color: #CDD8F2;
 }
 

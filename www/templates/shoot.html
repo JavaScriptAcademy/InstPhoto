@@ -5,14 +5,15 @@
         <button class="button button-block" ng-click="choosePhoto()">Choose Photo</button>
 
       </div>
-      <form ng-show="imgURI !== undefined" class="list list-inset " ng-submit="submit(imgURI)">
+      <form ng-show="imgURI !== undefined" class="list list-inset " >
         <img ng-src="{{imgURI}}" style="width:100%; height: auto;">
         <label  class="item item-input">
             <input type="text" ng-model="comment" placeholder="Comment">
         </label>
         <div class="button-bar">
-          <button class="button button-block" type = "submit" >Submit</button>
-<!--           <button class="button button-block" ng-click="cancle()" >Cancel</button> -->
+          <button class="button button-block" type = "submit" ng-click="submit(imgURI)" >Submit</button>
+          <button class="button button-block" ng-click="cancle()" >Cancel</button>
+          <button class="button button-block" ng-click="surprise(imgURI)" >Surprise</button>
         </div>
       </form>
     </ion-content>

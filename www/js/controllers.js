@@ -1,5 +1,3 @@
-'use strict';
-
 var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
 
 var postsRef = ref.child('posts');
@@ -69,12 +67,21 @@ angular.module('app.controllers', [])
 .controller('homeCtrl', function($scope, $state, $window) {
   //$scope.posts = [];
   $scope.noposts = true;
+
+
+
+
   postsRef.on("value", function(snapshot) {
     $scope.moment = moment;
     var posts = {};
     for(var key in snapshot.val()){
       preCreateHomePost(key, snapshot, posts, $scope);
     }
+
+
+
+
+
     var newPosts = {};
     reverseForIn(posts, function(key){
      newPosts[key] = this[key];
@@ -83,6 +90,7 @@ angular.module('app.controllers', [])
     for(var key in newPosts){
       createHomePost(key, $scope, newPosts);
     }
+
     //$scope.$apply();
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
@@ -288,15 +296,6 @@ angular.module('app.controllers', [])
     console.log('end');
   }
 
-
-  $scope.followerDetail = function() {
-    $state.go('follow', {
-      from: 'user',
-      type: 'follower',
-      userid: $stateParams.userid
-    });
-  }
-
   $scope.followedDetail = function() {
     $state.go('follow', {
       from: 'user',
@@ -312,10 +311,10 @@ angular.module('app.controllers', [])
   $scope.commentsPage = function(postid) {
     $state.go('comments', {
       postid: postid
-
     });
   }
 })
+
 
 
 .controller('currentlyUserCtrl', function($scope, $state, $ionicActionSheet) {
@@ -336,9 +335,12 @@ angular.module('app.controllers', [])
   }
 
   ref.onAuth(function(authData) {
+
     var currentlyId = authData.uid;
     var userRef = usersRef.child(currentlyId);
+
     userRef.on("value", function(snapshot) {
+      console.log(snapshot.val());
       $scope.userdata.username = snapshot.val().username;
       $scope.userdata.photo = snapshot.val().photo;
       $scope.userdata.follower = snapshot.val().follower.length-1;
@@ -460,7 +462,6 @@ angular.module('app.controllers', [])
   }
 })
 
-
 .controller('loginCtrl', function($scope, $state, $ionicLoading) {
   $scope.signinForm = {};
   $scope.submit = function() {
@@ -560,18 +561,49 @@ angular.module('app.controllers', [])
     //     }, function (err) {
     //         // An error occured. Show a message to the user
     //     });
+
   }
 
   $scope.submit = function(imageURI) {
+    console.log("submit");
+    postsRef.push().set({
+      userid: currentlyId,
+      imagePath: imageURI,
+      createdAt:getCurrentDate(),
+      imageEffect: "",
+      context: $scope.comment,
+      like: ['']
+    });
+    $scope.imgURI=undefined;
+    $scope.comment="";
+    $state.go('tabsController.home');
+  }
+
+  $scope.cancle = function(imageURI) {
+    console.log("cancle");
+    $scope.imgURI=undefined;
+    $scope.comment="";
+    $state.go('tabsController.home');
+
+  }
+
+  $scope.surprise = function(imageURI) {
+    console.log("surprise");
+    console.log(randomEffect());
     postsRef.push().set({
       userid: currentlyId,
       imagePath: imageURI,
       createdAt:getCurrentDate(),
       context: $scope.comment,
+      imageEffect:randomEffect(),
       like: ['']
     });
+    $scope.imgURI=undefined;
+    $scope.comment="";
     $state.go('tabsController.home');
+
   }
+
 })
 
 .controller('accountSettingCtrl', function($scope, $state) {
@@ -594,46 +626,47 @@ angular.module('app.controllers', [])
 })
 
 .controller('portraitCtrl', function($scope, $cordovaCamera, $state) {
-    $scope.takePhoto  = function () {
-      $scope.imgURI = 'https://s-media-cache-ak0.pinimg.com/236x/27/d1/66/27d16665573efaae154badd5980ee612.jpg';
-      //   var options = {
-      //     quality: 75,
-      //     destinationType: Camera.DestinationType.DATA_URL,
-      //     sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
-      //     allowEdit: true,
-      //     encodingType: Camera.EncodingType.JPEG,
-      //     targetWidth: 300,
-      //     targetHeight: 300,
-      //     popoverOptions: CameraPopoverOptions,
-      //     saveToPhotoAlbum: false
-      // };
-      //     $cordovaCamera.getPicture(options).then(function (imageData) {
-      //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
-      //     }, function (err) {
-      //         // An error occured. Show a message to the user
-      //     });
+    $scope.takePhoto = function () {
+       //  $scope.imgURI = 'http://images.all-free-download.com/images/graphiclarge/daisy_pollen_flower_220533.jpg';
+      var options = {
+        quality: 75,
+        destinationType: Camera.DestinationType.DATA_URL,
+        sourceType: Camera.PictureSourceType.CAMERA,
+        allowEdit: true,
+        encodingType: Camera.EncodingType.JPEG,
+        targetWidth: 300,
+        targetHeight: 300,
+        popoverOptions: CameraPopoverOptions,
+        saveToPhotoAlbum: false
+    };
+        $cordovaCamera.getPicture(options).then(function (imageData) {
+            $scope.imgURI = "data:image/jpeg;base64," + imageData;
+        }, function (err) {
+            // An error occured. Show a message to the user
+        });
     }
     $scope.choosePhoto = function () {
-      $scope.imgURI = 'http://www.dslrcameralife.com/wp-content/uploads/2015/06/039802938owki39323.png';
-      //   var options = {
-      //     quality: 75,
-      //     destinationType: Camera.DestinationType.DATA_URL,
-      //     sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
-      //     allowEdit: true,
-      //     encodingType: Camera.EncodingType.JPEG,
-      //     targetWidth: 300,
-      //     targetHeight: 300,
-      //     popoverOptions: CameraPopoverOptions,
-      //     saveToPhotoAlbum: false
-      // };
-      //     $cordovaCamera.getPicture(options).then(function (imageData) {
-      //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
-      //     }, function (err) {
-      //         // An error occured. Show a message to the user
-      //     });
+     // $scope.imgURI = 'http://www.dslrcameralife.com/wp-content/uploads/2015/06/039802938owki39323.png';
+        var options = {
+          quality: 75,
+          destinationType: Camera.DestinationType.DATA_URL,
+          sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+          allowEdit: true,
+          encodingType: Camera.EncodingType.JPEG,
+          targetWidth: 300,
+          targetHeight: 300,
+          popoverOptions: CameraPopoverOptions,
+          saveToPhotoAlbum: false
+      };
+          $cordovaCamera.getPicture(options).then(function (imageData) {
+              $scope.imgURI = "data:image/jpeg;base64," + imageData;
+          }, function (err) {
+              // An error occured. Show a message to the user
+          });
     }
 
     $scope.submit = function(imageURI) {
+      console.log('submit');
       ref.onAuth(function(authData) {
         var userRef = usersRef.child(authData.uid);
         var username;
@@ -663,8 +696,10 @@ angular.module('app.controllers', [])
     }
 
     $scope.cancle = function() {
-      console.log("cancel");
+      $scope.imgURI=undefined;
+      $state.go('tabsController.home');
     }
+
 })
 
 .controller('commentsCtrl', function($scope, $stateParams, $state) {
@@ -743,6 +778,7 @@ var likePhoto = function(key){
           imagePath: snapshot.val().imagePath,
           createdAt: snapshot.val().createdAt,
           context: snapshot.val().context,
+          imageEffect: snapshot.val().imageEffect,
           like: like,
           //comment: snapshot.val().comment
         })
@@ -755,6 +791,7 @@ var likePhoto = function(key){
           createdAt: snapshot.val().createdAt,
           context: snapshot.val().context,
           //comment: snapshot.val().comment,
+          imageEffect: snapshot.val().imageEffect,
           like: like
         })
       }
@@ -764,12 +801,21 @@ var likePhoto = function(key){
           imagePath: snapshot.val().imagePath,
           createdAt: snapshot.val().createdAt,
           context: snapshot.val().context,
+          imageEffect: snapshot.val().imageEffect,
           like: like,
           comment: snapshot.val().comment,
         })
       }
     });
   }
+
+
+var randomEffect = function() {
+ var effectArray = ["blend-blue", "blend-blue-dark","blend-blue-light","blend-orange","blend-orange-dark","blend-orange-light","blend-red","blend-red-dark","blend-red-light","blend-green","blend-green-dark","blend-green-light","blend-yellow","blend-yellow-dark","blend-yellow-light","blend-purple","blend-purple-dark","blend-purple-light","blend-pink","blend-pink-dark","blend-pink-light","blend-blue-yellow","blend-blue-yellow-dark","blend-blue-yellow-light","blend-pink-yellow","blend-pink-yellow-dark","blend-pink-yellow-light","blend-red-blue","blend-red-blue-dark","blend-red-blue-light"];
+ var randomNum = parseInt((Math.random() * (effectArray.length- 0)), 10);
+ return effectArray[randomNum];
+}
+
 
 function createFollow(index, snapshot, $scope, $stateParams, follow) {
   var followUserRef = usersRef.child(snapshot.val()[$stateParams.type][index]);
@@ -787,4 +833,5 @@ function createComment(key, commentTemp) {
     commentTemp[key].photo = userSnapshot.val().photo;
   });
 }
+
 
