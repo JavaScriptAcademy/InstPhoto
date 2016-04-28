@@ -1,4 +1,4 @@
-var ref = new Firebase("https://glaring-fire-2965.firebaseio.com");
+var ref = new Firebase("https://blistering-heat-1061.firebaseio.com");
 
 var postsRef = ref.child('posts');
 var usersRef = ref.child("users");
@@ -523,12 +523,12 @@ angular.module('app.controllers', [])
 })
 
 .controller("cameraController", function ($scope, $cordovaCamera, $state) {
-  $scope.takePhoto  = function () {
-    //$scope.imgURI = 'http://media02.hongkiat.com/ww-flower-wallpapers/roundflower.jpg';
+   $scope.takePhoto = function () {
+    //     $scope.imgURI = 'http://images.all-free-download.com/images/graphiclarge/daisy_pollen_flower_220533.jpg';
       var options = {
         quality: 75,
         destinationType: Camera.DestinationType.DATA_URL,
-        sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+        sourceType: Camera.PictureSourceType.CAMERA,
         allowEdit: true,
         encodingType: Camera.EncodingType.JPEG,
         targetWidth: 300,
@@ -541,9 +541,9 @@ angular.module('app.controllers', [])
         }, function (err) {
             // An error occured. Show a message to the user
         });
-  }
+    }
   $scope.choosePhoto = function () {
-   // $scope.imgURI = 'http://img00.deviantart.net/ae17/i/2013/118/4/6/rainbow_flower_by_i_is_kitty-d5l8o1g.jpg';
+  // $scope.imgURI = 'http://img00.deviantart.net/ae17/i/2013/118/4/6/rainbow_flower_by_i_is_kitty-d5l8o1g.jpg';
       var options = {
         quality: 75,
         destinationType: Camera.DestinationType.DATA_URL,
@@ -594,17 +594,7 @@ angular.module('app.controllers', [])
       createdAt:getCurrentDate(),
       context: $scope.comment,
       imageEffect:randomEffect(),
-      like: [''],
-      comments: {
-        'commentid1': {
-          userid: '8e96bd33-9fed-4128-a43b-5ea4cf07ed64',
-          content: 'first com'
-        },
-        'commentid2': {
-          userid: 'b328a4e7-4b77-4959-b834-6fb6c3620102',
-          content: 'second com'
-        }
-      }
+      like: ['']
     });
     $scope.imgURI=undefined;
     $scope.comment="";
@@ -634,24 +624,24 @@ angular.module('app.controllers', [])
 })
 
 .controller('portraitCtrl', function($scope, $cordovaCamera, $state) {
-    $scope.takePhoto  = function () {
-    //  $scope.imgURI = 'https://s-media-cache-ak0.pinimg.com/236x/27/d1/66/27d16665573efaae154badd5980ee612.jpg';
-        var options = {
-          quality: 75,
-          destinationType: Camera.DestinationType.DATA_URL,
-          sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
-          allowEdit: true,
-          encodingType: Camera.EncodingType.JPEG,
-          targetWidth: 300,
-          targetHeight: 300,
-          popoverOptions: CameraPopoverOptions,
-          saveToPhotoAlbum: false
-      };
-          $cordovaCamera.getPicture(options).then(function (imageData) {
-              $scope.imgURI = "data:image/jpeg;base64," + imageData;
-          }, function (err) {
-              // An error occured. Show a message to the user
-          });
+    $scope.takePhoto = function () {
+       //  $scope.imgURI = 'http://images.all-free-download.com/images/graphiclarge/daisy_pollen_flower_220533.jpg';
+      var options = {
+        quality: 75,
+        destinationType: Camera.DestinationType.DATA_URL,
+        sourceType: Camera.PictureSourceType.CAMERA,
+        allowEdit: true,
+        encodingType: Camera.EncodingType.JPEG,
+        targetWidth: 300,
+        targetHeight: 300,
+        popoverOptions: CameraPopoverOptions,
+        saveToPhotoAlbum: false
+    };
+        $cordovaCamera.getPicture(options).then(function (imageData) {
+            $scope.imgURI = "data:image/jpeg;base64," + imageData;
+        }, function (err) {
+            // An error occured. Show a message to the user
+        });
     }
     $scope.choosePhoto = function () {
      // $scope.imgURI = 'http://www.dslrcameralife.com/wp-content/uploads/2015/06/039802938owki39323.png';
@@ -704,6 +694,7 @@ angular.module('app.controllers', [])
     }
 
     $scope.cancle = function() {
+      $scope.imgURI=undefined;
       $state.go('tabsController.home');
     }
 
