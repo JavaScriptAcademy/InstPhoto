@@ -1,6 +1,4 @@
-'use strict';
 var ref = new Firebase("https://glaring-fire-2965.firebaseio.com");
-
 
 var postsRef = ref.child('posts');
 var usersRef = ref.child("users");
@@ -15,59 +13,85 @@ ref.onAuth(function(authData) {
 angular.module('app.controllers', [])
 .controller('homeCtrl', function($scope, $state, $window) {
   //$scope.posts = [];
+  $scope.noposts = true;
+
+
+
+
   postsRef.on("value", function(snapshot) {
-      $scope.moment = moment;
-      var posts = snapshot.val();
-      var newPosts = {};
+    $scope.moment = moment;
+    let posts = {};
+    for(let key in snapshot.val()){
+      let userRef = usersRef.child(currentlyId);
+      userRef.on('value', function(userSnapshot) {
+        let postUserid = snapshot.val()[key].userid;
+        // if(currentlyId === postUserid) {
+        //   posts[key] = snapshot.val()[key];
+        //   $scope.noposts = false;
 
-      reverseForIn(posts, function(key){
-       newPosts[key] = this[key];
+        // }
+        for(let index = 0; index < userSnapshot.val().followed.length; index++){
+          if(userSnapshot.val().followed[index] === postUserid ||
+            currentlyId === postUserid) {
+            posts[key] = snapshot.val()[key];
+            $scope.noposts = false;
+          }
+        }
       });
+    }
 
-      for(let key in newPosts){
-        var userRef = usersRef.child(newPosts[key].userid);
-        userRef.on('value', function(snapshot) {
-          newPosts[key].username = snapshot.val().username;
-          newPosts[key].photo = snapshot.val().photo;
-          // console.log($scope.posts);
-          $scope.posts = newPosts;
-          for(var post in $scope.posts){
-            for(var i = 0; i < $scope.posts[post].like.length; i++){
-              if($scope.posts[post].like[i] == currentlyId){
-                $scope.posts[post].islike = true;
-              }
-            }
-            if($scope.posts[post].comment){
-              let comment = $scope.posts[post].comment;
-              let lastComment = comment[Object.keys(comment)[Object.keys(comment).length - 1]];
-              var userRef = usersRef.child(lastComment.userId)
-              userRef.once("value", function(snapshot){
-                $scope.posts[post].lastcommentUser = snapshot.val().username;
-              })
-              $scope.posts[post].lastcommentContent = lastComment.content;
-              if(Object.keys(comment).length > 1){
-                let sLastComment = comment[Object.keys(comment)[Object.keys(comment).length - 2]];
-                var userRef = usersRef.child(sLastComment.userId)
-                userRef.once("value", function(snapshot){
-                  $scope.posts[post].sLastcommentUser = snapshot.val().username;
-                })
-                $scope.posts[post].sLastcommentContent = sLastComment.content;
-              }
+
+
+
+
+    var newPosts = {};
+    reverseForIn(posts, function(key){
+     newPosts[key] = this[key];
+    });
+
+    for(let key in newPosts){
+      var userRef = usersRef.child(newPosts[key].userid);
+      userRef.on('value', function(snapshot) {
+        newPosts[key].username = snapshot.val().username;
+        newPosts[key].photo = snapshot.val().photo;
+        // console.log($scope.posts);
+        $scope.posts = newPosts;
+        for(var post in $scope.posts){
+          for(var i = 0; i < $scope.posts[post].like.length; i++){
+            if($scope.posts[post].like[i] == currentlyId){
+              $scope.posts[post].islike = true;
             }
           }
+          if($scope.posts[post].comment){
+            let comment = $scope.posts[post].comment;
+            let lastComment = comment[Object.keys(comment)[Object.keys(comment).length - 1]];
+            var userRef = usersRef.child(lastComment.userId)
+            userRef.once("value", function(snapshot){
+              $scope.posts[post].lastcommentUser = snapshot.val().username;
+            })
+            $scope.posts[post].lastcommentContent = lastComment.content;
+            if(Object.keys(comment).length > 1){
+              let sLastComment = comment[Object.keys(comment)[Object.keys(comment).length - 2]];
+              var userRef = usersRef.child(sLastComment.userId)
+              userRef.once("value", function(snapshot){
+                $scope.posts[post].sLastcommentUser = snapshot.val().username;
+              })
+              $scope.posts[post].sLastcommentContent = sLastComment.content;
+            }
+          }
+        }
 
-        }, function(errorObject) {
-          console.log("The read failed: " + errorObject.code);
-        });
-      }
+      }, function(errorObject) {
+        console.log("The read failed: " + errorObject.code);
+      });
+    }
 
-      $scope.$apply();
+    //$scope.$apply();
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
 
   $scope.commentsPage = function(postid) {
-    console.log("comment: ", postid);
     $state.go('comments', {
       postid: postid
     });
@@ -92,27 +116,49 @@ angular.module('app.controllers', [])
     }
   };
 
+  $scope.matchedUsers = [];
+  $scope.matchUser = function($event) {
+    let keyWord = $event.target.value;
+    if(keyWord != null && keyWord != ''){
+      let match = new RegExp(keyWord, "i");
+      let matchUsers = [];
+      usersRef.once("value", function(snapshot){
+        let users = snapshot.val();
+        for(var user in users){
+          if(users[user].username.match(match)){
+            users[user].userid = user;
+            matchUsers.push(users[user]);
+          }
+        }
+        $scope.matchedUsers = matchUsers;
+        $scope.$apply();
+      })
+    }else{
+      $scope.matchedUsers = [];
+    }
+  }
+
+  $scope.getLength = function(obj) {
+      return Object.keys(obj).length;
+  }
+
   $scope.showLike = showLike;
   $scope.like = likePhoto;
-
 })
 
-.controller('userCtrl', function($scope, $stateParams) {
+.controller('userCtrl', function($scope, $stateParams, $state) {
   $scope.userdata = {};
   if($stateParams.userid === currentlyId) {
     $scope.isCurUserItself = true;
   }
   var userRef = usersRef.child($stateParams.userid);
   userRef.on("value", function(snapshot) {
-    console.log('in userRef.on');
-    console.log(snapshot.val());
 
     $scope.userdata.username = snapshot.val().username;
     $scope.userdata.photo = snapshot.val().photo;
     ref.onAuth(function(authData) {
       for(let index = 0; index < snapshot.val().follower.length-1; index++){
         if(snapshot.val().follower[index] === currentlyId){
-          console.log('find it');
           $scope.isfollowed = true;
         }
       }
@@ -196,7 +242,6 @@ angular.module('app.controllers', [])
 
     var userRef = usersRef.child(currentlyId);
     userRef.once("value", function(snapshot) {
-      console.log('in userRef');
       var follower = snapshot.val().follower;
       var email = snapshot.val().email;
       var username = snapshot.val().username;
@@ -225,7 +270,6 @@ angular.module('app.controllers', [])
       var username = snapshot.val().username;
       var photo = snapshot.val().photo;
       var followed = snapshot.val().followed;
-      console.log(snapshot.val());
       for(let index = 0; index < follower.length-1; index++){
         if(follower[index] === currentlyId){
           follower.splice(index, 1);
@@ -245,6 +289,24 @@ angular.module('app.controllers', [])
 
     console.log('end');
   }
+
+  $scope.followedDetail = function() {
+    $state.go('follow', {
+      from: 'user',
+      type: 'followed',
+      userid: $stateParams.userid
+    });
+  }
+
+  $scope.getLength = function(obj) {
+    return Object.keys(obj).length;
+  }
+
+  $scope.commentsPage = function(postid) {
+    $state.go('comments', {
+      postid: postid
+    });
+  }
 })
 
 .controller('currentlyUserCtrl', function($scope, $state) {
@@ -253,6 +315,16 @@ angular.module('app.controllers', [])
   $scope.goSetting = function() {
     $state.go('setting');
   };
+
+  $scope.getLength = function(obj) {
+    return Object.keys(obj).length;
+  }
+
+  $scope.commentsPage = function(postid) {
+    $state.go('comments', {
+      postid: postid
+    });
+  }
 
   ref.onAuth(function(authData) {
     console.log(authData);
@@ -296,6 +368,27 @@ angular.module('app.controllers', [])
 
   $scope.showLike = showLike;
   $scope.like = likePhoto;
+  $scope.delete = function(postid) {
+    console.log(postid);
+    let postRef = postsRef.child(postid);
+    postRef.set(null);
+  }
+
+  $scope.followerDetail = function() {
+    $state.go('follow', {
+      from: 'curUser',
+      type: 'follower',
+      userid: currentlyId
+    });
+  }
+
+  $scope.followedDetail = function() {
+    $state.go('follow', {
+      from: 'curUser',
+      type: 'followed',
+      userid: currentlyId
+    });
+  }
 })
 
 .controller('signupCtrl', function($scope, $state, $ionicLoading) {
@@ -375,44 +468,75 @@ angular.module('app.controllers', [])
 .controller('editPostCtrl', function($scope) {
 })
 
+.controller('followCtrl', function($scope, $stateParams, $state) {
+  let follow = {};
+  let userRef = usersRef.child($stateParams.userid);
+  userRef.on('value', function(snapshot) {
+    for(let index = 0; index < snapshot.val()[$stateParams.type].length-1; index++) {
+      let followUserRef = usersRef.child(snapshot.val()[$stateParams.type][index]);
+      followUserRef.on('value', function(childsnapshot) {
+        follow[snapshot.val()[$stateParams.type][index]] = childsnapshot.val();
+        $scope.follow = follow;
+        $scope.$apply();
+      });
+    }
+  });
+
+  $scope.detail = function(userid) {
+    $state.go('user', {
+      userid: userid
+    });
+  }
+
+  $scope.back = function() {
+    if($stateParams.from === 'user'){
+      $state.go('user', {
+        userid: $stateParams.userid
+      });
+    } else {
+      $state.go('tabsController.currentlyUser');
+    }
+  }
+})
+
 .controller("cameraController", function ($scope, $cordovaCamera, $state) {
   $scope.takePhoto  = function () {
-    $scope.imgURI = 'http://media02.hongkiat.com/ww-flower-wallpapers/roundflower.jpg';
-    //   var options = {
-    //     quality: 75,
-    //     destinationType: Camera.DestinationType.DATA_URL,
-    //     sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
-    //     allowEdit: true,
-    //     encodingType: Camera.EncodingType.JPEG,
-    //     targetWidth: 300,
-    //     targetHeight: 300,
-    //     popoverOptions: CameraPopoverOptions,
-    //     saveToPhotoAlbum: false
-    // };
-    //     $cordovaCamera.getPicture(options).then(function (imageData) {
-    //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
-    //     }, function (err) {
-    //         // An error occured. Show a message to the user
-    //     });
+    //$scope.imgURI = 'http://media02.hongkiat.com/ww-flower-wallpapers/roundflower.jpg';
+      var options = {
+        quality: 75,
+        destinationType: Camera.DestinationType.DATA_URL,
+        sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+        allowEdit: true,
+        encodingType: Camera.EncodingType.JPEG,
+        targetWidth: 300,
+        targetHeight: 300,
+        popoverOptions: CameraPopoverOptions,
+        saveToPhotoAlbum: false
+    };
+        $cordovaCamera.getPicture(options).then(function (imageData) {
+            $scope.imgURI = "data:image/jpeg;base64," + imageData;
+        }, function (err) {
+            // An error occured. Show a message to the user
+        });
   }
   $scope.choosePhoto = function () {
-    $scope.imgURI = 'http://img00.deviantart.net/ae17/i/2013/118/4/6/rainbow_flower_by_i_is_kitty-d5l8o1g.jpg';
-    //   var options = {
-    //     quality: 75,
-    //     destinationType: Camera.DestinationType.DATA_URL,
-    //     sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
-    //     allowEdit: true,
-    //     encodingType: Camera.EncodingType.JPEG,
-    //     targetWidth: 300,
-    //     targetHeight: 300,
-    //     popoverOptions: CameraPopoverOptions,
-    //     saveToPhotoAlbum: false
-    // };
-    //     $cordovaCamera.getPicture(options).then(function (imageData) {
-    //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
-    //     }, function (err) {
-    //         // An error occured. Show a message to the user
-    //     });
+    //$scope.imgURI = 'http://img00.deviantart.net/ae17/i/2013/118/4/6/rainbow_flower_by_i_is_kitty-d5l8o1g.jpg';
+      var options = {
+        quality: 75,
+        destinationType: Camera.DestinationType.DATA_URL,
+        sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+        allowEdit: true,
+        encodingType: Camera.EncodingType.JPEG,
+        targetWidth: 300,
+        targetHeight: 300,
+        popoverOptions: CameraPopoverOptions,
+        saveToPhotoAlbum: false
+    };
+        $cordovaCamera.getPicture(options).then(function (imageData) {
+            $scope.imgURI = "data:image/jpeg;base64," + imageData;
+        }, function (err) {
+            // An error occured. Show a message to the user
+        });
   }
 
   $scope.submit = function(imageURI) {
@@ -421,24 +545,14 @@ angular.module('app.controllers', [])
       userid: currentlyId,
       imagePath: imageURI,
       createdAt:getCurrentDate(),
+      imageEffect: "",
       context: $scope.comment,
-      like: [''],
-      comments: {
-        'commentid1': {
-          userid: '8e96bd33-9fed-4128-a43b-5ea4cf07ed64',
-          content: 'first com'
-        },
-        'commentid2': {
-          userid: 'b328a4e7-4b77-4959-b834-6fb6c3620102',
-          content: 'second com'
-        }
-      }
+      like: ['']
     });
     $scope.imgURI=undefined;
     $scope.comment="";
     $state.go('tabsController.home');
   }
-
 
   $scope.cancle = function(imageURI) {
     console.log("cancle");
@@ -479,7 +593,6 @@ angular.module('app.controllers', [])
 
 .controller('accountSettingCtrl', function($scope, $state) {
   $scope.edit = function() {
-    console.log('in edit');
     ref.onAuth(function(authData) {
       if (authData) {
         console.log("Authenticated with uid:", authData.uid);
@@ -499,42 +612,42 @@ angular.module('app.controllers', [])
 
 .controller('portraitCtrl', function($scope, $cordovaCamera, $state) {
     $scope.takePhoto  = function () {
-      $scope.imgURI = 'https://s-media-cache-ak0.pinimg.com/236x/27/d1/66/27d16665573efaae154badd5980ee612.jpg';
-      //   var options = {
-      //     quality: 75,
-      //     destinationType: Camera.DestinationType.DATA_URL,
-      //     sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
-      //     allowEdit: true,
-      //     encodingType: Camera.EncodingType.JPEG,
-      //     targetWidth: 300,
-      //     targetHeight: 300,
-      //     popoverOptions: CameraPopoverOptions,
-      //     saveToPhotoAlbum: false
-      // };
-      //     $cordovaCamera.getPicture(options).then(function (imageData) {
-      //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
-      //     }, function (err) {
-      //         // An error occured. Show a message to the user
-      //     });
+    //  $scope.imgURI = 'https://s-media-cache-ak0.pinimg.com/236x/27/d1/66/27d16665573efaae154badd5980ee612.jpg';
+        var options = {
+          quality: 75,
+          destinationType: Camera.DestinationType.DATA_URL,
+          sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+          allowEdit: true,
+          encodingType: Camera.EncodingType.JPEG,
+          targetWidth: 300,
+          targetHeight: 300,
+          popoverOptions: CameraPopoverOptions,
+          saveToPhotoAlbum: false
+      };
+          $cordovaCamera.getPicture(options).then(function (imageData) {
+              $scope.imgURI = "data:image/jpeg;base64," + imageData;
+          }, function (err) {
+              // An error occured. Show a message to the user
+          });
     }
     $scope.choosePhoto = function () {
-      $scope.imgURI = 'http://www.dslrcameralife.com/wp-content/uploads/2015/06/039802938owki39323.png';
-      //   var options = {
-      //     quality: 75,
-      //     destinationType: Camera.DestinationType.DATA_URL,
-      //     sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
-      //     allowEdit: true,
-      //     encodingType: Camera.EncodingType.JPEG,
-      //     targetWidth: 300,
-      //     targetHeight: 300,
-      //     popoverOptions: CameraPopoverOptions,
-      //     saveToPhotoAlbum: false
-      // };
-      //     $cordovaCamera.getPicture(options).then(function (imageData) {
-      //         $scope.imgURI = "data:image/jpeg;base64," + imageData;
-      //     }, function (err) {
-      //         // An error occured. Show a message to the user
-      //     });
+     // $scope.imgURI = 'http://www.dslrcameralife.com/wp-content/uploads/2015/06/039802938owki39323.png';
+        var options = {
+          quality: 75,
+          destinationType: Camera.DestinationType.DATA_URL,
+          sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+          allowEdit: true,
+          encodingType: Camera.EncodingType.JPEG,
+          targetWidth: 300,
+          targetHeight: 300,
+          popoverOptions: CameraPopoverOptions,
+          saveToPhotoAlbum: false
+      };
+          $cordovaCamera.getPicture(options).then(function (imageData) {
+              $scope.imgURI = "data:image/jpeg;base64," + imageData;
+          }, function (err) {
+              // An error occured. Show a message to the user
+          });
     }
 
     $scope.submit = function(imageURI) {
@@ -636,7 +749,6 @@ var showLike = function(post) {
 }
 
 var likePhoto = function(key){
-    console.log(key);
     var postRef = ref.child('posts/' + key);
     postRef.once('value', function(snapshot){
       var like = snapshot.val().like;
@@ -654,6 +766,7 @@ var likePhoto = function(key){
           imagePath: snapshot.val().imagePath,
           createdAt: snapshot.val().createdAt,
           context: snapshot.val().context,
+          imageEffect: snapshot.val().imageEffect,
           like: like,
           //comment: snapshot.val().comment
         })
@@ -666,6 +779,7 @@ var likePhoto = function(key){
           createdAt: snapshot.val().createdAt,
           context: snapshot.val().context,
           //comment: snapshot.val().comment,
+          imageEffect: snapshot.val().imageEffect,
           like: like
         })
       }
@@ -675,6 +789,7 @@ var likePhoto = function(key){
           imagePath: snapshot.val().imagePath,
           createdAt: snapshot.val().createdAt,
           context: snapshot.val().context,
+          imageEffect: snapshot.val().imageEffect,
           like: like,
           comment: snapshot.val().comment,
         })
@@ -687,3 +802,21 @@ var randomEffect = function() {
  var randomNum = parseInt((Math.random() * (effectArray.length- 0)), 10);
  return effectArray[randomNum];
 }
+
+//  var setValues = function(userRef,key, snapshot, posts,  $scope) {
+//   userRef.on('value', function(userSnapshot) {
+//     var  postUserid = snapshot.val()[key].userid;
+//     // if(currentlyId === postUserid) {
+//     //   posts[key] = snapshot.val()[key];
+//     //   $scope.noposts = false;
+
+//     // }
+//     for(var index = 0; index < userSnapshot.val().followed.length; index++){
+//       if(userSnapshot.val().followed[index] === postUserid ||
+//         currentlyId === postUserid) {
+//         posts[key] = snapshot.val()[key];
+//         $scope.noposts = false;
+//       }
+//     }
+//   });
+// }

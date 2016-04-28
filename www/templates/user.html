@@ -14,11 +14,11 @@
                 <strong>posts</strong>
             </div>
             <div class="posts">
-                <strong>{{userdata.follower}}</strong><br>
+                <strong ng-click='followerDetail()'>{{userdata.follower}}</strong><br>
                 <strong>follower</strong>
             </div>
             <div class="posts">
-                <strong>{{userdata.followed}}</strong><br>
+                <strong ng-click='followedDetail()'>{{userdata.followed}}</strong><br>
                 <strong>followed</strong>
             </div>
             <div class="follow" ng-hide='isCurUserItself'>
@@ -31,16 +31,22 @@
             <div class="postDesc">
                 <p>{{value.context}}</p>
             </div>
-            <div class="postImage">
+            <div class="{{value.imageEffect}} postImage">
                 <img src="{{value.imagePath}}" />
             </div>
             <div class="postComment">
                 <div class="likeAndComment">
                     <span class="ion-ios-heart" ng-click="like(key)" ng-show="value.islike"></span>
                     <span class="ion-ios-heart-outline" ng-click="like(key)" ng-hide="value.islike"></span>
-                    <span></span>
+                    <!-- <span></span> -->
                     <div ng-if='showLike(value)' style="display: inline-block;">
                         {{value.like.length-1}}
+                    </div>
+
+                    <span class="ion-ios-chatbubble-outline" ng-click="commentsPage(key)"></span>
+                    <!-- <span></span> -->
+                    <div ng-if='value.comment' style="display: inline-block;">
+                        {{getLength(value.comment)}}
                     </div>
                 </div>
                 <div class="newlyComment">

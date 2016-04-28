@@ -1,15 +1,25 @@
 <ion-view title="Home" id="page2" style="background-color:#F8CB6C;">
     <ion-content padding="true" scroll="true" class="has-header">
         <div class="searchWarpper">
-            <form class="search" method="post" action="" >
-                <input type="text" name="q" placeholder="Search..." class="ion-search"/>
+            <div class="search" >
+                <input type="text" name="q" placeholder="Search..." class="ion-search" ng-keyup="matchUser($event)" autocomplete="off"/>
                 <ul class="results" >
-                    <li><a href="index.html">Search Result #1<br /><span>Description...</span></a></li>
-                    <li><a href="index.html">Search Result #2<br /><span>Description...</span></a></li>
-                    <li><a href="index.html">Search Result #3<br /><span>Description...</span></a></li>
-                    <li><a href="index.html">Search Result #4</a></li>
+                    <li ng-repeat="user in matchedUsers">
+                        <a ng-click="detail(user.userid)">
+                            <div class="searchedList">
+                                <div class="item-avatar headerImage">
+                                    <img src={{user.photo}} />
+                                </div>
+                                <div class="searchedName"><strong>{{user.username}}</strong></div>
+                            </div>
+                        </a>
+                    </li>
                 </ul>
-            </form>
+            </div>
+        </div>
+
+        <div ng-show='noposts'>
+            <div class="noPost">You didn't follow others yet.<br> Go to Follow them OR Post Pics!</div>
         </div>
 
         <div class="homePost" ng-repeat="(key, value) in posts">
@@ -30,12 +40,17 @@
                 <div class="likeAndComment">
                     <span class="ion-ios-heart" ng-click="like(key)" ng-show="value.islike"></span>
                     <span class="ion-ios-heart-outline" ng-click="like(key)" ng-hide="value.islike"></span>
-
-                    <span></span>
+                    <!-- <span></span> -->
                     <div ng-if='showLike(value)' style="display: inline-block;">
                         {{value.like.length-1}}
                     </div>
-                    <!-- <span class="ion-ios-chatbubble-outline"></span> -->
+
+                    <span class="ion-ios-chatbubble-outline"></span>
+                    <!-- <span></span> -->
+                    <div ng-if='value.comment' style="display: inline-block;">
+                        {{getLength(value.comment)}}
+                    </div>
+
                 </div>
                 <div class="newlyComment" ng-if="value.lastcommentUser">
                     <div><span>{{value.lastcommentUser}}: </span> {{value.lastcommentContent}}</div>
