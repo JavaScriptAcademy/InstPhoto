@@ -149,10 +149,11 @@ angular.module('app.controllers', [])
   }
   var userRef = usersRef.child($stateParams.userid);
   userRef.on("value", function(snapshot) {
-
     $scope.userdata.username = snapshot.val().username;
     $scope.userdata.photo = snapshot.val().photo;
+
     ref.onAuth(function(authData) {
+      $scope.isfollowed = false;
       for(var index = 0; index < snapshot.val().follower.length-1; index++){
         if(snapshot.val().follower[index] === currentlyId){
           $scope.isfollowed = true;
