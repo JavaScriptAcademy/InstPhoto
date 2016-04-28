@@ -55,7 +55,7 @@ function createHomePost(key, $scope, newPosts) {
           $scope.posts[post].sLastcommentContent = sLastComment.content;
         }
       }
-      console.log($scope.posts);
+      //  console.log($scope.posts);
     }
 
   }, function(errorObject) {
@@ -303,6 +303,14 @@ angular.module('app.controllers', [])
       userid: $stateParams.userid
     });
   }
+    $scope.followerDetail = function() {
+    console.log('test');
+    $state.go('follow', {
+      from: 'user',
+      type: 'follower',
+      userid: $stateParams.userid
+    });
+  }
 
   $scope.getLength = function(obj) {
     return Object.keys(obj).length;
@@ -404,6 +412,7 @@ angular.module('app.controllers', [])
   }
 
   $scope.followerDetail = function() {
+    console.log('test');
     $state.go('follow', {
       from: 'curUser',
       type: 'follower',
@@ -412,6 +421,8 @@ angular.module('app.controllers', [])
   }
 
   $scope.followedDetail = function() {
+    console.log('test1');
+
     $state.go('follow', {
       from: 'curUser',
       type: 'followed',
@@ -822,7 +833,7 @@ function createFollow(index, snapshot, $scope, $stateParams, follow) {
   followUserRef.on('value', function(childsnapshot) {
     follow[snapshot.val()[$stateParams.type][index]] = childsnapshot.val();
     $scope.follow = follow;
-    $scope.$apply();
+    //$scope.$apply();
   });
 }
 
