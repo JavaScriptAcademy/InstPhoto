@@ -297,6 +297,15 @@ input {
     color: #CDD8F2;
 }
 
+.followUser {
+    font-style: italic;
+    font-weight: bold;
+    color: #1CC1EF;
+    margin-top: 17px;
+}
+
+
+
 .deleteButton {
     float: right;
     line-height: 30px;
