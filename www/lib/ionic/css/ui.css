@@ -287,6 +287,13 @@ input {
     color: #1CC1EF;
 }
 
+.followUser {
+    font-style: italic;
+    font-weight: bold;
+    color: #1CC1EF;
+    margin-top: 17px;
+}
+
 
 .deleteButton {
     float: right;

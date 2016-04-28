@@ -12,76 +12,77 @@ ref.onAuth(function(authData) {
   }
 });
 
+function preCreateHomePost(key, snapshot, posts, $scope) {
+  var userRef = usersRef.child(currentlyId);
+  userRef.on('value', function(userSnapshot) {
+
+    var postUserid = snapshot.val()[key].userid;
+    for(var index = 0; index < userSnapshot.val().followed.length; index++){
+      if(userSnapshot.val().followed[index] === postUserid ||
+        currentlyId === postUserid) {
+        posts[key] = snapshot.val()[key];
+        $scope.noposts = false;
+      }
+    }
+  });
+}
+
+function createHomePost(key, $scope, newPosts) {
+  var userRef = usersRef.child(newPosts[key].userid);
+  userRef.on('value', function(snapshot) {
+    newPosts[key].username = snapshot.val().username;
+    newPosts[key].photo = snapshot.val().photo;
+    // console.log($scope.posts);
+    $scope.posts = newPosts;
+    for(var post in $scope.posts){
+      for(var i = 0; i < $scope.posts[post].like.length; i++){
+        if($scope.posts[post].like[i] == currentlyId){
+          $scope.posts[post].islike = true;
+        }
+      }
+      if($scope.posts[post].comment){
+        var comment = $scope.posts[post].comment;
+        var lastComment = comment[Object.keys(comment)[Object.keys(comment).length - 1]];
+        var userRef = usersRef.child(lastComment.userId)
+        userRef.once("value", function(snapshot){
+          $scope.posts[post].lastcommentUser = snapshot.val().username;
+        })
+        $scope.posts[post].lastcommentContent = lastComment.content;
+        if(Object.keys(comment).length > 1){
+          var sLastComment = comment[Object.keys(comment)[Object.keys(comment).length - 2]];
+          var userRef = usersRef.child(sLastComment.userId)
+          userRef.once("value", function(snapshot){
+            $scope.posts[post].sLastcommentUser = snapshot.val().username;
+          })
+          $scope.posts[post].sLastcommentContent = sLastComment.content;
+        }
+      }
+    }
+
+  }, function(errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
+}
+
 angular.module('app.controllers', [])
 .controller('homeCtrl', function($scope, $state, $window) {
   //$scope.posts = [];
   $scope.noposts = true;
   postsRef.on("value", function(snapshot) {
     $scope.moment = moment;
-    let posts = {};
-    for(let key in snapshot.val()){
-      let userRef = usersRef.child(currentlyId);
-      userRef.on('value', function(userSnapshot) {
-        let postUserid = snapshot.val()[key].userid;
-        // if(currentlyId === postUserid) {
-        //   posts[key] = snapshot.val()[key];
-        //   $scope.noposts = false;
-
-        // }
-        for(let index = 0; index < userSnapshot.val().followed.length; index++){
-          if(userSnapshot.val().followed[index] === postUserid ||
-            currentlyId === postUserid) {
-            posts[key] = snapshot.val()[key];
-            $scope.noposts = false;
-          }
-        }
-      });
+    var posts = {};
+    for(var key in snapshot.val()){
+      preCreateHomePost(key, snapshot, posts, $scope);
     }
     var newPosts = {};
     reverseForIn(posts, function(key){
      newPosts[key] = this[key];
     });
 
-    for(let key in newPosts){
-      var userRef = usersRef.child(newPosts[key].userid);
-      userRef.on('value', function(snapshot) {
-        newPosts[key].username = snapshot.val().username;
-        newPosts[key].photo = snapshot.val().photo;
-        // console.log($scope.posts);
-        $scope.posts = newPosts;
-        for(var post in $scope.posts){
-          for(var i = 0; i < $scope.posts[post].like.length; i++){
-            if($scope.posts[post].like[i] == currentlyId){
-              $scope.posts[post].islike = true;
-            }
-          }
-          if($scope.posts[post].comment){
-            let comment = $scope.posts[post].comment;
-            let lastComment = comment[Object.keys(comment)[Object.keys(comment).length - 1]];
-            var userRef = usersRef.child(lastComment.userId)
-            userRef.once("value", function(snapshot){
-              $scope.posts[post].lastcommentUser = snapshot.val().username;
-            })
-            $scope.posts[post].lastcommentContent = lastComment.content;
-            if(Object.keys(comment).length > 1){
-              let sLastComment = comment[Object.keys(comment)[Object.keys(comment).length - 2]];
-              var userRef = usersRef.child(sLastComment.userId)
-              userRef.once("value", function(snapshot){
-                $scope.posts[post].sLastcommentUser = snapshot.val().username;
-              })
-              $scope.posts[post].sLastcommentContent = sLastComment.content;
-            }
-          }
-        }
-
-      }, function(errorObject) {
-        console.log("The read failed: " + errorObject.code);
-      });
+    for(var key in newPosts){
+      createHomePost(key, $scope, newPosts);
     }
-
-
     //$scope.$apply();
-
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
@@ -113,12 +114,12 @@ angular.module('app.controllers', [])
 
   $scope.matchedUsers = [];
   $scope.matchUser = function($event) {
-    let keyWord = $event.target.value;
+    var keyWord = $event.target.value;
     if(keyWord != null && keyWord != ''){
-      let match = new RegExp(keyWord, "i");
-      let matchUsers = [];
+      var match = new RegExp(keyWord, "i");
+      var matchUsers = [];
       usersRef.once("value", function(snapshot){
-        let users = snapshot.val();
+        var users = snapshot.val();
         for(var user in users){
           if(users[user].username.match(match)){
             users[user].userid = user;
@@ -152,7 +153,7 @@ angular.module('app.controllers', [])
     $scope.userdata.username = snapshot.val().username;
     $scope.userdata.photo = snapshot.val().photo;
     ref.onAuth(function(authData) {
-      for(let index = 0; index < snapshot.val().follower.length-1; index++){
+      for(var index = 0; index < snapshot.val().follower.length-1; index++){
         if(snapshot.val().follower[index] === currentlyId){
           $scope.isfollowed = true;
         }
@@ -171,16 +172,16 @@ angular.module('app.controllers', [])
       newPosts[key] = this[key];
     });
     $scope.userdata.posts = {};
-    for(let key in newPosts) {
+    for(var key in newPosts) {
       if(newPosts[key].userid === $stateParams.userid){
         $scope.userdata.posts[key] = newPosts[key];
       }
     }
 
     var postsNum = 0;
-    for(let post in $scope.userdata.posts){
+    for(var post in $scope.userdata.posts){
       postsNum++;
-      for(let i = 0; i < $scope.userdata.posts[post].like.length; i++){
+      for(var i = 0; i < $scope.userdata.posts[post].like.length; i++){
         if($scope.userdata.posts[post].like[i] === currentlyId){
           $scope.userdata.posts[post].islike = true;
         }
@@ -242,7 +243,7 @@ angular.module('app.controllers', [])
       var username = snapshot.val().username;
       var photo = snapshot.val().photo;
       var followed = snapshot.val().followed;
-      for(let index = 0; index < followed.length-1; index++){
+      for(var index = 0; index < followed.length-1; index++){
         if(followed[index] === $stateParams.userid){
           followed.splice(index, 1);
           console.log('remove in followed');
@@ -265,7 +266,7 @@ angular.module('app.controllers', [])
       var username = snapshot.val().username;
       var photo = snapshot.val().photo;
       var followed = snapshot.val().followed;
-      for(let index = 0; index < follower.length-1; index++){
+      for(var index = 0; index < follower.length-1; index++){
         if(follower[index] === currentlyId){
           follower.splice(index, 1);
           console.log('remove in follower');
@@ -315,7 +316,7 @@ angular.module('app.controllers', [])
 })
 
 
-.controller('currentlyUserCtrl', function($scope, $state) {
+.controller('currentlyUserCtrl', function($scope, $state, $ionicActionSheet) {
   $scope.userdata = {};
 
   $scope.goSetting = function() {
@@ -333,7 +334,7 @@ angular.module('app.controllers', [])
   }
 
   ref.onAuth(function(authData) {
-    let currentlyId = authData.uid;
+    var currentlyId = authData.uid;
     var userRef = usersRef.child(currentlyId);
     userRef.on("value", function(snapshot) {
       $scope.userdata.username = snapshot.val().username;
@@ -351,15 +352,15 @@ angular.module('app.controllers', [])
         newPosts[key] = this[key];
       });
       $scope.userdata.posts = {};
-      for(let key in newPosts) {
+      for(var key in newPosts) {
         if(newPosts[key].userid === currentlyId){
           $scope.userdata.posts[key] = newPosts[key];
         }
       }
       var postsNum = 0;
-      for(let post in $scope.userdata.posts){
+      for(var post in $scope.userdata.posts){
         postsNum++;
-        for(let i = 0; i < $scope.userdata.posts[post].like.length; i++){
+        for(var i = 0; i < $scope.userdata.posts[post].like.length; i++){
           if($scope.userdata.posts[post].like[i] === currentlyId){
             $scope.userdata.posts[post].islike = true;
           }
@@ -373,10 +374,29 @@ angular.module('app.controllers', [])
 
   $scope.showLike = showLike;
   $scope.like = likePhoto;
+
   $scope.delete = function(postid) {
-    console.log(postid);
-    let postRef = postsRef.child(postid);
-    postRef.set(null);
+    var hideSheet = $ionicActionSheet.show({
+     buttons: [
+       { text: '<b>DELETE</b>' }
+     ],
+     titleText: 'Delete the post',
+     cancelText: 'Cancel',
+     cancel: function() {
+          // add cancel code..
+        },
+     buttonClicked: function(index) {
+      if(index === 0){
+        console.log('delete !');
+        console.log(postid);
+        var postRef = postsRef.child(postid);
+        postRef.set(null);
+       return true;
+      }
+     }
+   });
+
+
   }
 
   $scope.followerDetail = function() {
@@ -475,16 +495,11 @@ angular.module('app.controllers', [])
 })
 
 .controller('followCtrl', function($scope, $stateParams, $state) {
-  let follow = {};
-  let userRef = usersRef.child($stateParams.userid);
+  var follow = {};
+  var userRef = usersRef.child($stateParams.userid);
   userRef.on('value', function(snapshot) {
-    for(let index = 0; index < snapshot.val()[$stateParams.type].length-1; index++) {
-      let followUserRef = usersRef.child(snapshot.val()[$stateParams.type][index]);
-      followUserRef.on('value', function(childsnapshot) {
-        follow[snapshot.val()[$stateParams.type][index]] = childsnapshot.val();
-        $scope.follow = follow;
-        $scope.$apply();
-      });
+    for(var index = 0; index < snapshot.val()[$stateParams.type].length-1; index++) {
+      createFollow(index, snapshot, $scope, $stateParams, follow);
     }
   });
 
@@ -651,19 +666,15 @@ angular.module('app.controllers', [])
 })
 
 .controller('commentsCtrl', function($scope, $stateParams, $state) {
-  let postid = $stateParams.postid;
-  let postRef = postsRef.child(postid);
+  var postid = $stateParams.postid;
+  var postRef = postsRef.child(postid);
   postRef.on('value', function(postSnapshot) {
-    let commentTemp = postSnapshot.val().comment;
-    for(let key in commentTemp){
-      let userRef = usersRef.child(commentTemp[key].userId);
-      userRef.once('value', function(userSnapshot) {
-        commentTemp[key].username = userSnapshot.val().username;
-        commentTemp[key].photo = userSnapshot.val().photo;
-      });
+    var commentTemp = postSnapshot.val().comment;
+    for(var key in commentTemp){
+      createComment(key, commentTemp);
     }
 
-    let comments = {};
+    var comments = {};
     reverseForIn(commentTemp, function(key){
       comments[key] = this[key];
     });
@@ -757,4 +768,21 @@ var likePhoto = function(key){
       }
     });
   }
+
+function createFollow(index, snapshot, $scope, $stateParams, follow) {
+  var followUserRef = usersRef.child(snapshot.val()[$stateParams.type][index]);
+  followUserRef.on('value', function(childsnapshot) {
+    follow[snapshot.val()[$stateParams.type][index]] = childsnapshot.val();
+    $scope.follow = follow;
+    $scope.$apply();
+  });
+}
+
+function createComment(key, commentTemp) {
+  var userRef = usersRef.child(commentTemp[key].userId);
+  userRef.once('value', function(userSnapshot) {
+    commentTemp[key].username = userSnapshot.val().username;
+    commentTemp[key].photo = userSnapshot.val().photo;
+  });
+}
 
