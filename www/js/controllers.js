@@ -89,10 +89,7 @@ angular.module('app.controllers', [])
     for(var key in newPosts){
       createHomePost(key, $scope, newPosts);
     }
-<<<<<<< HEAD
 
-=======
->>>>>>> e402c9ac47e7fa46606795a1e80def2bce486b8a
     //$scope.$apply();
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
@@ -316,12 +313,9 @@ angular.module('app.controllers', [])
   }
 })
 
-<<<<<<< HEAD
-.controller('currentlyUserCtrl', function($scope, $state) {
-=======
+
 
 .controller('currentlyUserCtrl', function($scope, $state, $ionicActionSheet) {
->>>>>>> e402c9ac47e7fa46606795a1e80def2bce486b8a
   $scope.userdata = {};
 
   $scope.goSetting = function() {
@@ -339,14 +333,12 @@ angular.module('app.controllers', [])
   }
 
   ref.onAuth(function(authData) {
-<<<<<<< HEAD
-    console.log(authData);
-    let currentlyId = authData.uid;
-=======
+
     var currentlyId = authData.uid;
->>>>>>> e402c9ac47e7fa46606795a1e80def2bce486b8a
     var userRef = usersRef.child(currentlyId);
+
     userRef.on("value", function(snapshot) {
+      console.log(snapshot.val());
       $scope.userdata.username = snapshot.val().username;
       $scope.userdata.photo = snapshot.val().photo;
       $scope.userdata.follower = snapshot.val().follower.length-1;
@@ -550,7 +542,7 @@ angular.module('app.controllers', [])
         });
   }
   $scope.choosePhoto = function () {
-    //$scope.imgURI = 'http://img00.deviantart.net/ae17/i/2013/118/4/6/rainbow_flower_by_i_is_kitty-d5l8o1g.jpg';
+   // $scope.imgURI = 'http://img00.deviantart.net/ae17/i/2013/118/4/6/rainbow_flower_by_i_is_kitty-d5l8o1g.jpg';
       var options = {
         quality: 75,
         destinationType: Camera.DestinationType.DATA_URL,
@@ -823,31 +815,14 @@ var likePhoto = function(key){
     });
   }
 
-<<<<<<< HEAD
+
 var randomEffect = function() {
  var effectArray = ["blend-blue", "blend-blue-dark","blend-blue-light","blend-orange","blend-orange-dark","blend-orange-light","blend-red","blend-red-dark","blend-red-light","blend-green","blend-green-dark","blend-green-light","blend-yellow","blend-yellow-dark","blend-yellow-light","blend-purple","blend-purple-dark","blend-purple-light","blend-pink","blend-pink-dark","blend-pink-light","blend-blue-yellow","blend-blue-yellow-dark","blend-blue-yellow-light","blend-pink-yellow","blend-pink-yellow-dark","blend-pink-yellow-light","blend-red-blue","blend-red-blue-dark","blend-red-blue-light"];
  var randomNum = parseInt((Math.random() * (effectArray.length- 0)), 10);
  return effectArray[randomNum];
 }
 
-//  var setValues = function(userRef,key, snapshot, posts,  $scope) {
-//   userRef.on('value', function(userSnapshot) {
-//     var  postUserid = snapshot.val()[key].userid;
-//     // if(currentlyId === postUserid) {
-//     //   posts[key] = snapshot.val()[key];
-//     //   $scope.noposts = false;
 
-//     // }
-//     for(var index = 0; index < userSnapshot.val().followed.length; index++){
-//       if(userSnapshot.val().followed[index] === postUserid ||
-//         currentlyId === postUserid) {
-//         posts[key] = snapshot.val()[key];
-//         $scope.noposts = false;
-//       }
-//     }
-//   });
-// }
-=======
 function createFollow(index, snapshot, $scope, $stateParams, follow) {
   var followUserRef = usersRef.child(snapshot.val()[$stateParams.type][index]);
   followUserRef.on('value', function(childsnapshot) {
@@ -865,4 +840,4 @@ function createComment(key, commentTemp) {
   });
 }
 
->>>>>>> e402c9ac47e7fa46606795a1e80def2bce486b8a
+
