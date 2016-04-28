@@ -279,12 +279,13 @@ input {
     margin-top: 8px;
     vertical-align: top;
     display: inline-block;
+    font-size: 18px;
 }
 
 .commentUser {
     font-style: italic;
     font-weight: bold;
-    color: #1CC1EF;
+    color: white;
 }
 
 .noPost {
