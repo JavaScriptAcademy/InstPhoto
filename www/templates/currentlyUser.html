@@ -23,6 +23,8 @@
             </div>
         </div>
 
+​
+
         <div class="homePost postHeader" ng-repeat="(key, value) in userdata.posts" >
             <div class="postDesc">
                 <p class="postTitle">{{value.context}}</p>
@@ -30,7 +32,7 @@
                 </button>
             </div>
 
-            <div class="postImage">
+            <div class="{{value.imageEffect}} postImage">
                 <img src="{{value.imagePath}}" />
             </div>
             <div class="postComment">
@@ -49,10 +51,10 @@
                     </div>
                 </div>
                 <div class="newlyComment">
-
+​
                 </div>
             </div>
         </div>
-
+​
     </ion-content>
 </ion-view>

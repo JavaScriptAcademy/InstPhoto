@@ -27,15 +27,14 @@
                 <div class="item-avatar headerImage" ng-click="detail(value.userid)">
                     <img src={{value.photo}} />
                 </div>
-
                 <div class="postName"><strong>{{value.username}}</strong></div>
                 <div class="postTime">{{ moment(value.createdAt).fromNow() }}</div>
-
             </div>
             <div class="postDesc">
                 <p>{{value.context}}</p>
             </div>
-            <div class="postImage">
+            <div class="{{value.imageEffect}} postImage">
+            <!-- <div class="postImage"> -->
                 <img src="{{value.imagePath}}" />
             </div>
             <div class="postComment">
@@ -52,8 +51,9 @@
                     <div ng-if='value.comment' style="display: inline-block;">
                         {{getLength(value.comment)}}
                     </div>
+
                 </div>
-                <div class="newlyComment" ng-if="value.lastcommentUser">
+                <div class="newlyComment" ng-if="value.lastcommentContent">
                     <div><span>{{value.lastcommentUser}}: </span> {{value.lastcommentContent}}</div>
                     <div ng-if="value.sLastcommentUser">
                         <span>{{value.sLastcommentUser}}: </span> {{value.sLastcommentContent}}
