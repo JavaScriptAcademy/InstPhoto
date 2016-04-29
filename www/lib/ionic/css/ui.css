@@ -184,6 +184,7 @@ input {
     margin-top: 10px;
     width: 100%;
     position: relative;
+    background-color: white;
 }
 
 .postDesc p {
@@ -285,7 +286,7 @@ input {
 .commentUser {
     font-style: italic;
     font-weight: bold;
-    color: white;
+    color: #083190;
 }
 
 .noPost {
@@ -295,7 +296,7 @@ input {
     font-family: "Arial Black","Arial Bold",Gadget,sans-serif;
     font-size: 30px;
     line-height: 200%;
-    color: #CDD8F2;
+    color: #083190;
 }
 
 .followUser {

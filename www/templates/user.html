@@ -1,5 +1,5 @@
-<ion-view title="User" id="page4" style="background-color:#6C7A89;" hide-nav-bar="true">
-        <ion-header-bar class="top" style="background-color:##DF7401;">
+<ion-view title="User" id="page4" style="background-color:#DAD7D7;" hide-nav-bar="true">
+        <ion-header-bar class="top" style="background-color:white;">
           <a href="/#/page1/page2"><button class="button button-icon ion-ios-arrow-back">
           </button></a>
           <h1 class="title">{{userdata.username}}</h1>
@@ -21,11 +21,13 @@
                 <strong ng-click='followedDetail()'>{{userdata.followed}}</strong><br>
                 <strong>followed</strong>
             </div>
-            <div class="follow" ng-hide='isCurUserItself'>
+
+        </div>
+
+        <div class="follow" ng-hide='isCurUserItself'>
                 <button class="button button-block button-balanced" ng-show='isfollowed' ng-click='unfollow()'>Followed!</button>
                 <button class="button button-block button-calm" ng-hide='isfollowed' ng-click='follow()'>Follow</button>
             </div>
-        </div>
 
         <div class="homePost" ng-repeat="(key, value) in userdata.posts" >
             <div class="postDesc">
