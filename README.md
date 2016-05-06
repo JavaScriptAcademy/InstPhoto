@@ -10,7 +10,7 @@ An online mobile photo-sharing social application than enables users to take pho
 - Like and comment
 - Search and follow others
 
-## Main techs
+## Main Techs
 - Ionic
 - Angular
 - Cordova
@@ -18,7 +18,7 @@ An online mobile photo-sharing social application than enables users to take pho
 - Moment.js
 - ColorFilter.css
 
-## Using this project
+## Quick Start
 
 * Install [Node.js](https://nodejs.org/en/)
 * Install the latest ionic and cordova
