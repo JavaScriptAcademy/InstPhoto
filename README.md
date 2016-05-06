@@ -38,11 +38,11 @@ $ ionic serve
 ```
 
 ## Contributor
-  **Layne Song**
+**Layne Song**
   - https://github.com/Layne913
-  **Elliot Shi**
+**Elliot Shi**
   - https://github.com/ElliotShi
-  **Chris Yu**
+**Chris Yu**
   - https://github.com/chris490yy
   
   
